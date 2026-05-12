@@ -35,7 +35,7 @@ const burnFrag = /* glsl */ `
 `
 
 // ── Camera controller ─────────────────────────────────────────────────────────
-function CameraController({ zooming, visible, onZoomComplete }) {
+function CameraController({ zooming, visible, onZoomComplete, timelineRef }) {
   const { camera } = useThree()
   const animated = useRef(false)
   const prevVisible = useRef(visible)
@@ -54,7 +54,7 @@ function CameraController({ zooming, visible, onZoomComplete }) {
     if (visible && !prevVisible.current) {
       gsap.killTweensOf(camera.position)
       gsap.killTweensOf(camera.rotation)
-      camera.position.set(0, 3.4, 9.5)
+      camera.position.set(0, 4.0, 9.5)
       camera.rotation.set(0, 0, 0)
       animated.current = false
     }
@@ -65,16 +65,17 @@ function CameraController({ zooming, visible, onZoomComplete }) {
     if (zooming && !animated.current) {
       animated.current = true
       const tl = gsap.timeline({ onComplete: onZoomComplete })
-      tl.to(camera.position, { z: -0.6, y: 1.2, x: 0, duration: 3.4, ease: 'power3.inOut' }, 0)
+      tl.to(camera.position, { z: -0.6, y: 2.5, x: 0, duration: 3.4, ease: 'power3.inOut' }, 0)
       tl.to(camera.rotation, { x: 0.0, duration: 3.4, ease: 'power3.inOut' }, 0)
+      if (timelineRef) timelineRef.current = tl
     }
   }, [zooming, camera, onZoomComplete])
 
   useFrame(() => {
     if (animated.current) return
     camera.position.x += (mouse.current.x * 0.18 - camera.position.x) * 0.04
-    camera.position.y += (3.4 - mouse.current.y * 0.12 - camera.position.y) * 0.04
-    camera.lookAt(0, 0.7, -4)
+    camera.position.y += (4.0 - mouse.current.y * 0.12 - camera.position.y) * 0.04
+    camera.lookAt(0, 1.5, -4)
   })
 
   return null
@@ -87,7 +88,7 @@ function ProjectorLight() {
   useEffect(() => {
     const l = lightRef.current
     if (!l) return
-    l.target.position.set(0, 0.7, -4)
+    l.target.position.set(0, 2.5, -4)
     scene.add(l.target)
     return () => scene.remove(l.target)
   }, [scene])
@@ -99,42 +100,44 @@ function ProjectorLight() {
   )
 }
 
-// ── Film burn overlay ─────────────────────────────────────────────────────────
-function FilmBurnEffect() {
-  const uniforms = useMemo(() => ({ uTime: { value: 0 } }), [])
-  useFrame(({ clock }) => { uniforms.uTime.value = clock.getElapsedTime() })
-  return (
-    <mesh position={[0, 0.7, -3.93]}>
-      <planeGeometry args={[12, 6.8]} />
-      <shaderMaterial uniforms={uniforms} vertexShader={burnVert} fragmentShader={burnFrag}
-        transparent depthWrite={false} blending={THREE.AdditiveBlending} />
-    </mesh>
-  )
-}
-
 // ── Cinema screen ─────────────────────────────────────────────────────────────
-function CinemaScreen({ onClick, zooming }) {
+function CinemaScreen({ onClick, zooming, volume }) {
   const screenRef = useRef()
   const [hovered, setHovered] = useState(false)
   const [texture, setTexture]  = useState(null)
 
-  useEffect(() => {
-    const video = document.createElement('video')
-    video.src = '/assets/HotSauceAd.mp4'
-    video.loop = true
-    video.muted = true
-    video.playsInline = true
+  const videoRef      = useRef(null)
+  const canvasRef     = useRef(null)
+  const ctxRef        = useRef(null)
+  const lastTimeRef   = useRef(-1)
+  const volumeInitRef = useRef(volume)
 
-    const tex = new THREE.VideoTexture(video)
-    // flipY=false is the VideoTexture default; compensate via UV transform
-    tex.flipY = false
-    tex.repeat.set(1, -1)
-    tex.offset.set(0, 1)
+  useEffect(() => {
+    const canvas = document.createElement('canvas')
+    canvas.width  = 1280
+    canvas.height = 720
+    const ctx = canvas.getContext('2d')
+    ctx.fillStyle = '#000'
+    ctx.fillRect(0, 0, 1280, 720)
+
+    const tex = new THREE.CanvasTexture(canvas)
     tex.minFilter = THREE.LinearFilter
     tex.magFilter = THREE.LinearFilter
     tex.colorSpace = THREE.SRGBColorSpace
 
-    video.play().catch(() => {})
+    const video = document.createElement('video')
+    video.src = '/assets/escape-detention.mp4'
+    video.loop = true
+    video.muted = true
+    video.playsInline = true
+    video.play().then(() => {
+      video.muted = false
+      video.volume = volumeInitRef.current
+    }).catch(() => {})
+
+    videoRef.current  = video
+    canvasRef.current = canvas
+    ctxRef.current    = ctx
     setTexture(tex)
 
     return () => {
@@ -144,42 +147,68 @@ function CinemaScreen({ onClick, zooming }) {
     }
   }, [])
 
-  const hasPhoto = texture !== null
+  const volumeMounted = useRef(false)
+  useEffect(() => {
+    if (!volumeMounted.current) { volumeMounted.current = true; return }
+    const v = videoRef.current
+    if (!v) return
+    v.muted = volume === 0
+    v.volume = volume
+  }, [volume])
 
   useFrame(({ clock }) => {
-    if (!screenRef.current || zooming) return
-    // Keep video texture synced
-    if (texture) texture.needsUpdate = true
-    const t = clock.getElapsedTime()
-    const base    = hasPhoto ? 0.28 : 1.8
-    const flutter = (hasPhoto ? 0.02 : 0.08) * Math.sin(t * 2.1)
-                  + (hasPhoto ? 0.01 : 0.04) * Math.sin(t * 8.7)
-    const spike   = Math.random() < 0.006 ? (hasPhoto ? 0.06 : -0.3) : 0
+    if (!screenRef.current) return
+
+    // Draw video frame onto canvas with contain (black bars fill gaps)
+    const video  = videoRef.current
+    const canvas = canvasRef.current
+    const ctx    = ctxRef.current
+    if (video && ctx && video.readyState >= 2 && video.currentTime !== lastTimeRef.current) {
+      lastTimeRef.current = video.currentTime
+      const cw = canvas.width, ch = canvas.height
+      const ca = cw / ch
+      const va = video.videoWidth && video.videoHeight
+        ? video.videoWidth / video.videoHeight : ca
+      let dx, dy, dw, dh
+      if (va > ca) {
+        dh = ch; dw = ch * va; dy = 0; dx = (cw - dw) / 2
+      } else {
+        dw = cw; dh = cw / va; dx = 0; dy = (ch - dh) / 2
+      }
+      ctx.drawImage(video, dx, dy, dw, dh)
+      if (texture) texture.needsUpdate = true
+    }
+
+    if (zooming || texture) return
+    const t       = clock.getElapsedTime()
+    const base    = 1.8
+    const flutter = 0.08 * Math.sin(t * 2.1) + 0.04 * Math.sin(t * 8.7)
+    const spike   = Math.random() < 0.006 ? -0.3 : 0
     screenRef.current.material.emissiveIntensity = base + flutter + spike
   })
 
   return (
     <group>
-      <mesh position={[0, 0.7, -4.08]}>
-        <boxGeometry args={[13.0, 7.6, 0.1]} />
-        <meshStandardMaterial color="#040200" />
+      {/* Pure black backing — no coloured border */}
+      <mesh position={[0, 2.5, -4.08]}>
+        <boxGeometry args={[12.2, 6.95, 0.1]} />
+        <meshStandardMaterial color="#000000" />
       </mesh>
       <mesh
-        ref={screenRef} position={[0, 0.7, -4]}
+        ref={screenRef} position={[0, 2.5, -4]}
         onClick={() => !zooming && onClick()}
         onPointerEnter={() => { if (!zooming) { setHovered(true);  document.body.style.cursor = 'pointer' } }}
         onPointerLeave={() => {                  setHovered(false); document.body.style.cursor = '' }}
       >
-        <planeGeometry args={[12, 6.8]} />
-        {hasPhoto ? (
-          <meshStandardMaterial map={texture}
-            color="#ffffff" emissive="#ffffff" emissiveIntensity={0.28} roughness={1} toneMapped={false} />
+        <planeGeometry args={[12, 6.75]} />
+        {texture ? (
+          <meshStandardMaterial map={texture} roughness={1} toneMapped={false} />
         ) : (
           <meshStandardMaterial
-            color={hovered ? '#faf8f0' : '#f0ece0'} emissive="#f8f4e4" emissiveIntensity={1.8} roughness={0.92} />
+            color={hovered ? '#faf8f0' : '#f0ece0'}
+            emissive="#f8f4e4" emissiveIntensity={1.8} roughness={0.92} />
         )}
       </mesh>
-      <FilmBurnEffect />
     </group>
   )
 }
@@ -228,12 +257,12 @@ function TheatreRoom() {
   return (
     <group>
       {/* ── Floor ── */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.55, 2]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.9, 2]}>
         <planeGeometry args={[24, 20]} />
         <meshStandardMaterial color="#070402" roughness={1} />
       </mesh>
       {/* Center carpet aisle runner */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.545, 2]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.89, 2]}>
         <planeGeometry args={[1.6, 20]} />
         <meshStandardMaterial color="#0e0604" roughness={1} />
       </mesh>
@@ -244,12 +273,12 @@ function TheatreRoom() {
         <meshStandardMaterial color="#030200" roughness={1} />
       </mesh>
       {/* Cove ceiling directly over screen — slightly lower, darker */}
-      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 5.5, -1.5]}>
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 6.4, -1.5]}>
         <planeGeometry args={[22, 5.5]} />
         <meshStandardMaterial color="#020100" roughness={1} />
       </mesh>
       {/* Angled cove drop — connects the two ceiling heights */}
-      <mesh position={[0, 6.06, 1.2]} rotation={[-0.46, 0, 0]}>
+      <mesh position={[0, 6.5, 1.2]} rotation={[-0.46, 0, 0]}>
         <planeGeometry args={[22, 1.5]} />
         <meshStandardMaterial color="#030100" roughness={1} side={THREE.DoubleSide} />
       </mesh>
@@ -344,11 +373,6 @@ function TheatreRoom() {
       </mesh>
 
       {/* ── Proscenium arch ── */}
-      {/* Top beam above screen */}
-      <mesh position={[0, 4.6, -4.05]}>
-        <boxGeometry args={[14.4, 0.8, 0.5]} />
-        <meshStandardMaterial color="#0e0803" roughness={0.95} />
-      </mesh>
       {/* Left column */}
       <mesh position={[-6.85, 1.6, -4.05]}>
         <boxGeometry args={[0.6, 10.4, 0.5]} />
@@ -426,9 +450,12 @@ function TheatreRoom() {
 }
 
 // ── TheatreScene (exported) ───────────────────────────────────────────────────
-export default function TheatreScene({ visible, onScreenClick }) {
-  const [zooming,   setZooming]   = useState(false)
-  const [showFlash, setShowFlash] = useState(false)
+export default function TheatreScene({ visible, onScreenClick, initialVolume = 0 }) {
+  const [zooming,     setZooming]     = useState(false)
+  const [showFlash,   setShowFlash]   = useState(false)
+  const [volume,      setVolume]      = useState(initialVolume)
+  const [showSlider,  setShowSlider]  = useState(false)
+  const zoomTlRef = useRef(null)
 
   useEffect(() => {
     if (visible) { setZooming(false); setShowFlash(false) }
@@ -436,6 +463,7 @@ export default function TheatreScene({ visible, onScreenClick }) {
 
   const handleZoomComplete = () => {
     setShowFlash(true)
+    setVolume(0)
     setTimeout(() => {
       setZooming(false)
       onScreenClick()
@@ -450,11 +478,12 @@ export default function TheatreScene({ visible, onScreenClick }) {
       initial={false}
     >
       <Canvas
-        camera={{ position: [0, 3.4, 9.5], fov: 68 }}
+        camera={{ position: [0, 4.0, 9.5], fov: 68 }}
         gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
         style={{ background: '#060402' }}
+        onDoubleClick={() => { if (zooming && zoomTlRef.current) zoomTlRef.current.timeScale(5) }}
       >
-        <CameraController zooming={zooming} visible={visible} onZoomComplete={handleZoomComplete} />
+        <CameraController zooming={zooming} visible={visible} onZoomComplete={handleZoomComplete} timelineRef={zoomTlRef} />
 
         {/* Warm dim ambient — lets geometry be slightly visible in shadow */}
         <ambientLight intensity={20} color="#1c0e06" />
@@ -463,7 +492,7 @@ export default function TheatreScene({ visible, onScreenClick }) {
         <ProjectorLight />
 
         {/* Screen glow — primary light source, illuminates front rows */}
-        <pointLight position={[0, 0.7, -2.8]} intensity={22} color="#e8dcc0" distance={22} />
+        <pointLight position={[0, 2.5, -2.8]} intensity={10} color="#e8dcc0" distance={22} />
 
         {/* Ceiling wash — lights the audience area from above */}
         <pointLight position={[0, 6.0, 3.5]} intensity={28} color="#4a2808" distance={30} />
@@ -487,9 +516,55 @@ export default function TheatreScene({ visible, onScreenClick }) {
         <TheatreRoom />
         <Curtain side="left" />
         <Curtain side="right" />
-        <CinemaScreen onClick={() => !zooming && setZooming(true)} zooming={zooming} />
+        <CinemaScreen onClick={() => !zooming && setZooming(true)} zooming={zooming} volume={volume} />
         <DustParticles />
       </Canvas>
+
+      {/* Volume control */}
+      <div
+        style={{ position: 'absolute', bottom: 28, right: 28, zIndex: 10, display: 'flex', alignItems: 'center', gap: 10 }}
+        onMouseEnter={() => setShowSlider(true)}
+        onMouseLeave={() => setShowSlider(false)}
+      >
+        {showSlider && (
+          <input
+            type="range" min="0" max="1" step="0.05" value={volume}
+            onChange={e => setVolume(parseFloat(e.target.value))}
+            style={{
+              width: 90, accentColor: '#d4af37', cursor: 'pointer',
+              opacity: 0.9, verticalAlign: 'middle',
+            }}
+          />
+        )}
+        <button
+          onClick={() => setVolume(v => v === 0 ? 0.4 : 0)}
+          style={{
+            background: 'rgba(0,0,0,0.45)', border: '1px solid rgba(255,255,255,0.18)',
+            cursor: 'pointer', padding: '7px 9px', lineHeight: 0, borderRadius: 2,
+          }}
+          aria-label={volume === 0 ? 'Unmute' : 'Mute'}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            {volume === 0 ? (
+              <>
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <line x1="23" y1="9" x2="17" y2="15" /><line x1="17" y1="9" x2="23" y2="15" />
+              </>
+            ) : volume < 0.5 ? (
+              <>
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+              </>
+            ) : (
+              <>
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+              </>
+            )}
+          </svg>
+        </button>
+      </div>
 
       {/* Warm sepia vignette */}
       <div style={{
@@ -509,7 +584,7 @@ export default function TheatreScene({ visible, onScreenClick }) {
       <motion.p
         style={hintStyle}
         initial={{ opacity: 0 }}
-        animate={{ opacity: zooming ? 0 : 0.45 }}
+        animate={{ opacity: zooming ? 0 : 1 }}
         transition={{ delay: zooming ? 0 : 2.5, duration: 1 }}
       >
         click the screen to enter
@@ -524,9 +599,10 @@ const hintStyle = {
   width: '100%',
   textAlign: 'center',
   fontFamily: "'JetBrains Mono', monospace",
-  fontSize: 10,
-  letterSpacing: '0.4em',
-  color: '#7a5830',
+  fontSize: 12,
+  letterSpacing: '0.45em',
+  color: '#c8a050',
   textTransform: 'lowercase',
   pointerEvents: 'none',
+  textShadow: '0 0 18px rgba(200,140,40,0.6)',
 }

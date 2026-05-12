@@ -8,12 +8,11 @@ const firstProject = projects.find(p => p.category === 'Animation')
 
 export default function FilmStripView({ onBack, onSelectProject }) {
   const [activeCategory, setActiveCategory] = useState('Animation')
-  const [colorBg, setColorBg] = useState(firstProject?.colorBg ?? '#0a0a0a')
-  const [accentColor, setAccentColor] = useState(firstProject?.color ?? '#ffffff')
+  const [colorBg, setColorBg] = useState(firstProject?.colorBg ?? '#1d100f')
+  const [accentColor, setAccentColor] = useState(firstProject?.accent ?? '#ffb3ad')
 
   const topTearRef = useRef(null)
   const bottomTearRef = useRef(null)
-  const rootRef = useRef(null)
 
   useEffect(() => {
     const top = topTearRef.current
@@ -41,31 +40,31 @@ export default function FilmStripView({ onBack, onSelectProject }) {
     })
   }, [])
 
-  const handleBgChange = useCallback(({ color, colorBg: bg }) => {
+  const handleBgChange = useCallback(({ accent, colorBg: bg }) => {
     setColorBg(bg)
-    setAccentColor(color)
+    setAccentColor(accent)
   }, [])
 
   return (
-    <div ref={rootRef} style={{ ...s.root, backgroundColor: colorBg }}>
-      {/* Tear panels */}
+    <div style={{ ...s.root, backgroundColor: colorBg }}>
+      {/* Screen-tear panels */}
       <div ref={topTearRef} style={s.tearTop} />
       <div ref={bottomTearRef} style={s.tearBottom} />
 
-      {/* Subtle grain / vignette overlay */}
+      {/* Vignette */}
       <div style={s.vignette} />
 
-      {/* Header */}
+      {/* Header — row 1 */}
       <header style={s.header}>
-        <button onClick={onBack} style={s.backBtn} aria-label="Back to theatre">
+        <button onClick={onBack} style={s.backBtn} aria-label="Back to portfolio">
           <span style={s.backArrow}>←</span>
           <span style={s.backLabel}>back</span>
         </button>
 
         <div style={s.wordmark}>
-          <span style={s.wordmarkMain}>THADEUS TRISTAN</span>
-          <span style={s.wordmarkSep}>·</span>
-          <span style={s.wordmarkSub}>SELECTED WORKS</span>
+          <span style={s.wordmarkDiamond}>◆</span>
+          <span style={s.wordmarkMain}>Thadeus Tristan</span>
+          <span style={s.wordmarkDiamond}>◆</span>
         </div>
 
         <div style={s.navWrapper}>
@@ -73,7 +72,7 @@ export default function FilmStripView({ onBack, onSelectProject }) {
         </div>
       </header>
 
-      {/* Carousel */}
+      {/* Carousel — row 2 */}
       <div style={s.carouselArea}>
         <FilmTapeCarousel
           activeCategory={activeCategory}
@@ -88,82 +87,70 @@ export default function FilmStripView({ onBack, onSelectProject }) {
 const s = {
   root: {
     position: 'fixed', inset: 0, zIndex: 100,
-    display: 'flex', flexDirection: 'column',
+    display: 'grid',
+    gridTemplateRows: '72px 1fr',
     overflow: 'hidden',
     transition: 'background-color 0.6s ease',
   },
 
   tearTop: {
     position: 'absolute', top: 0, left: 0, right: 0,
-    height: '50.5%',
-    background: '#ffffff',
-    zIndex: 200,
-    pointerEvents: 'none',
+    height: '50.5%', background: '#ffffff',
+    zIndex: 200, pointerEvents: 'none',
   },
   tearBottom: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
-    height: '50.5%',
-    background: '#ffffff',
-    zIndex: 200,
-    pointerEvents: 'none',
+    height: '50.5%', background: '#ffffff',
+    zIndex: 200, pointerEvents: 'none',
   },
 
   vignette: {
     position: 'absolute', inset: 0,
     background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%)',
-    pointerEvents: 'none',
-    zIndex: 1,
+    pointerEvents: 'none', zIndex: 1,
   },
 
   header: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '18px 48px 14px',
+    padding: '0 40px',
+    borderBottom: '1px solid rgba(255,255,255,0.07)',
+    zIndex: 10, position: 'relative',
     flexShrink: 0,
-    zIndex: 10,
-    position: 'relative',
   },
 
   backBtn: {
-    background: 'none', border: 'none', cursor: 'pointer',
-    display: 'flex', alignItems: 'center', gap: 8, padding: 0,
+    background: 'none', border: '1px solid rgba(255,255,255,0.12)',
+    cursor: 'pointer', display: 'flex', alignItems: 'center',
+    gap: 8, padding: '7px 14px',
+    transition: 'border-color 0.2s',
   },
   backArrow: {
-    fontSize: 16, color: 'rgba(255,255,255,0.5)',
+    fontSize: 14, color: 'rgba(255,255,255,0.5)',
     fontFamily: "'Space Grotesk', sans-serif",
   },
   backLabel: {
-    fontFamily: "'JetBrains Mono', monospace", fontSize: 10,
-    color: 'rgba(255,255,255,0.4)',
-    letterSpacing: '0.3em', textTransform: 'uppercase',
+    fontFamily: "'JetBrains Mono', monospace", fontSize: 9,
+    color: 'rgba(255,255,255,0.4)', letterSpacing: '0.3em', textTransform: 'uppercase',
   },
 
   wordmark: {
-    display: 'flex', alignItems: 'baseline', gap: 10,
+    display: 'flex', alignItems: 'center', gap: 10,
     position: 'absolute', left: '50%', transform: 'translateX(-50%)',
   },
   wordmarkMain: {
-    fontFamily: "'Space Grotesk', sans-serif", fontWeight: 300, fontSize: 11,
-    letterSpacing: '0.42em', color: 'rgba(255,255,255,0.3)',
-    textTransform: 'uppercase',
+    fontFamily: "'Bodoni Moda', serif", fontWeight: 500,
+    fontSize: 16, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.06em',
   },
-  wordmarkSep: {
-    fontFamily: "'JetBrains Mono', monospace", fontSize: 10,
-    color: 'rgba(255,255,255,0.2)',
-  },
-  wordmarkSub: {
-    fontFamily: "'JetBrains Mono', monospace", fontSize: 9,
-    color: 'rgba(255,255,255,0.25)', letterSpacing: '0.2em',
-    textTransform: 'uppercase',
+  wordmarkDiamond: {
+    fontFamily: "'JetBrains Mono', monospace",
+    fontSize: 7, color: 'rgba(255,255,255,0.2)',
   },
 
-  navWrapper: {
-    display: 'flex', alignItems: 'center',
-  },
+  navWrapper: { display: 'flex', alignItems: 'center' },
 
   carouselArea: {
     flex: 1, display: 'flex', flexDirection: 'column',
     minHeight: 0, overflow: 'hidden',
-    zIndex: 10,
-    position: 'relative',
+    zIndex: 10, position: 'relative',
   },
 }

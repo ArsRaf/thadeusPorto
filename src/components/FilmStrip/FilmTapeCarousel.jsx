@@ -18,6 +18,23 @@ function SplitTitle({ text }) {
   )
 }
 
+// Corner bracket marks for the media panel
+function CornerMarks({ accent }) {
+  const c = `${accent}55`
+  return (
+    <>
+      <div style={{ ...cm.corner, top: 10, left: 10, borderTop: `1px solid ${c}`, borderLeft: `1px solid ${c}` }} />
+      <div style={{ ...cm.corner, top: 10, right: 10, borderTop: `1px solid ${c}`, borderRight: `1px solid ${c}` }} />
+      <div style={{ ...cm.corner, bottom: 10, left: 10, borderBottom: `1px solid ${c}`, borderLeft: `1px solid ${c}` }} />
+      <div style={{ ...cm.corner, bottom: 10, right: 10, borderBottom: `1px solid ${c}`, borderRight: `1px solid ${c}` }} />
+    </>
+  )
+}
+
+const cm = {
+  corner: { position: 'absolute', width: 16, height: 16, pointerEvents: 'none' },
+}
+
 export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBgChange }) {
   const filtered = useMemo(
     () => projects.filter(p => p.category === activeCategory),
@@ -35,7 +52,7 @@ export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBg
 
   useEffect(() => {
     const project = filtered[currentIndex]
-    if (project) onBgChange({ color: project.color, colorBg: project.colorBg })
+    if (project) onBgChange({ accent: project.accent, colorBg: project.colorBg })
   }, [currentIndex, filtered, onBgChange])
 
   useEffect(() => {
@@ -143,11 +160,15 @@ export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBg
   if (!project) return null
 
   const catLabel = activeCategory.toUpperCase().split('').join(' ')
-  const accentColor = project.color
+  const accent = project.accent
+
+  const firstMedia = project.media?.[0]
+  const hasMedia = firstMedia?.src
 
   return (
     <div style={s.root}>
-      <div ref={categoryLabelRef} style={{ ...s.categoryLabel, color: accentColor }}>
+      {/* Category label */}
+      <div ref={categoryLabelRef} style={{ ...s.categoryLabel, color: accent }}>
         {catLabel.split('').map((ch, i) => (
           <span
             key={i}
@@ -159,42 +180,53 @@ export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBg
         ))}
       </div>
 
+      {/* Main content row */}
       <div ref={contentRef} style={s.content}>
+        {/* Media panel */}
         <div className="media-panel" style={s.mediaPanel}>
-          {project.media?.[0]?.src ? (
-            project.media[0].type === 'video'
-              ? <video src={project.media[0].src} style={s.mediaSrc} autoPlay muted loop playsInline />
-              : <img src={project.media[0].src} alt={project.title} style={s.mediaSrc} />
+          {hasMedia ? (
+            firstMedia.type === 'video'
+              ? <video src={firstMedia.src} style={s.mediaSrc} autoPlay muted loop playsInline />
+              : <img src={firstMedia.src} alt={project.title} style={s.mediaSrc} />
           ) : (
             <div style={s.mediaPlaceholder}>
               <span style={s.placeholderText}>NO MEDIA</span>
             </div>
           )}
+          <CornerMarks accent={accent} />
+
+          {/* Category · Year tag */}
+          <div style={s.mediaTag}>
+            <span style={{ ...s.mediaTagText, color: `${accent}99` }}>
+              {project.category} · {project.year}
+            </span>
+          </div>
         </div>
 
+        {/* Meta panel */}
         <div className="meta-panel" style={s.metaPanel}>
-          <div style={{ ...s.year, color: accentColor }}>{project.year}</div>
+          <div style={{ ...s.year, color: `${accent}bb` }}>{project.year}</div>
           <h2 style={s.title}>
             <SplitTitle text={project.title} />
           </h2>
           <p style={s.description}>{project.description}</p>
           <div style={s.tools}>
             {project.tools.map(t => (
-              <span key={t} style={{ ...s.tool, borderColor: `${accentColor}44`, color: `${accentColor}cc` }}>
+              <span key={t} style={{ ...s.tool, borderColor: `${accent}33`, color: `${accent}bb` }}>
                 {t}
               </span>
             ))}
           </div>
           <button
-            style={{ ...s.viewBtn, borderColor: `${accentColor}66`, color: '#fff' }}
+            style={{ ...s.viewBtn, borderColor: `${accent}55`, color: '#fff' }}
             onClick={() => onSelectProject(project)}
             onMouseEnter={e => {
-              e.currentTarget.style.background = `${accentColor}22`
-              e.currentTarget.style.borderColor = accentColor
+              e.currentTarget.style.background = `${accent}22`
+              e.currentTarget.style.borderColor = accent
             }}
             onMouseLeave={e => {
               e.currentTarget.style.background = 'transparent'
-              e.currentTarget.style.borderColor = `${accentColor}66`
+              e.currentTarget.style.borderColor = `${accent}55`
             }}
           >
             VIEW PROJECT ↗
@@ -202,13 +234,14 @@ export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBg
         </div>
       </div>
 
+      {/* Bottom nav */}
       <div style={s.bottomBar}>
         {filtered.length > 1 && (
           <button
             style={s.arrowBtn}
             onClick={() => navigate('left')}
-            onMouseEnter={e => { e.currentTarget.style.color = accentColor }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)' }}
+            onMouseEnter={e => { e.currentTarget.style.color = accent }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)' }}
             aria-label="Previous"
           >←</button>
         )}
@@ -222,12 +255,12 @@ export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBg
                 onClick={() => goTo(i)}
                 style={{
                   ...s.projectTab,
-                  color: isActive ? '#fff' : 'rgba(255,255,255,0.35)',
-                  borderBottom: `2px solid ${isActive ? accentColor : 'transparent'}`,
+                  color: isActive ? '#fff' : 'rgba(255,255,255,0.3)',
+                  borderBottom: `1px solid ${isActive ? accent : 'transparent'}`,
                   paddingBottom: 8,
                 }}
-                onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = 'rgba(255,255,255,0.7)' }}
-                onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = 'rgba(255,255,255,0.35)' }}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = 'rgba(255,255,255,0.6)' }}
+                onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = 'rgba(255,255,255,0.3)' }}
               >
                 <span style={s.projectTabNumber}>
                   {String(i + 1).padStart(2, '0')}
@@ -242,8 +275,8 @@ export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBg
           <button
             style={s.arrowBtn}
             onClick={() => navigate('right')}
-            onMouseEnter={e => { e.currentTarget.style.color = accentColor }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)' }}
+            onMouseEnter={e => { e.currentTarget.style.color = accent }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)' }}
             aria-label="Next"
           >→</button>
         )}
@@ -254,191 +287,123 @@ export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBg
 
 const s = {
   root: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '0 48px 24px',
-    minHeight: 0,
-    overflow: 'hidden',
+    flex: 1, display: 'flex', flexDirection: 'column',
+    padding: '0 48px 0',
+    minHeight: 0, overflow: 'hidden',
   },
 
   categoryLabel: {
-    fontFamily: "'Space Grotesk', sans-serif",
-    fontWeight: 300,
-    fontSize: 'clamp(28px, 4.5vw, 64px)',
-    letterSpacing: '0.4em',
-    textTransform: 'uppercase',
-    marginBottom: 16,
-    userSelect: 'none',
-    lineHeight: 1,
-    opacity: 0.7,
+    fontFamily: "'Bodoni Moda', serif", fontWeight: 400, fontStyle: 'italic',
+    fontSize: 'clamp(24px, 3.5vw, 52px)',
+    letterSpacing: '0.05em',
+    marginBottom: 12, marginTop: 16,
+    userSelect: 'none', lineHeight: 1,
+    opacity: 0.6,
   },
 
   content: {
-    flex: 1,
-    display: 'flex',
-    gap: 48,
-    alignItems: 'center',
-    minHeight: 0,
-    overflow: 'hidden',
+    flex: 1, display: 'flex', gap: 48,
+    alignItems: 'center', minHeight: 0, overflow: 'hidden',
   },
 
   mediaPanel: {
-    flex: '0 0 55%',
-    height: '100%',
-    maxHeight: 460,
-    overflow: 'hidden',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: 'rgba(255,255,255,0.04)',
-    border: '1px solid rgba(255,255,255,0.08)',
+    flex: '0 0 55%', height: '100%',
+    maxHeight: 440, overflow: 'hidden',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.07)',
+    position: 'relative',
   },
 
-  mediaSrc: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-  },
+  mediaSrc: { width: '100%', height: '100%', objectFit: 'cover' },
 
   mediaPlaceholder: {
-    width: '100%',
-    height: '100%',
-    minHeight: 300,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: '100%', height: '100%', minHeight: 280,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-
   placeholderText: {
     fontFamily: "'JetBrains Mono', monospace",
-    fontSize: 10,
-    letterSpacing: '0.4em',
-    color: 'rgba(255,255,255,0.12)',
+    fontSize: 9, letterSpacing: '0.4em', color: 'rgba(255,255,255,0.1)',
+  },
+
+  mediaTag: { position: 'absolute', bottom: 14, left: 18, pointerEvents: 'none' },
+  mediaTagText: {
+    fontFamily: "'JetBrains Mono', monospace",
+    fontSize: 8, letterSpacing: '0.3em', textTransform: 'uppercase',
   },
 
   metaPanel: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 14,
-    minWidth: 0,
+    flex: 1, display: 'flex', flexDirection: 'column',
+    gap: 14, minWidth: 0,
   },
 
   year: {
     fontFamily: "'JetBrains Mono', monospace",
-    fontSize: 11,
-    letterSpacing: '0.3em',
-    fontWeight: 400,
+    fontSize: 10, letterSpacing: '0.35em', textTransform: 'uppercase',
   },
 
   title: {
-    fontFamily: "'Space Grotesk', sans-serif",
-    fontWeight: 300,
-    fontSize: 'clamp(26px, 3.2vw, 52px)',
-    color: '#ffffff',
-    margin: 0,
-    lineHeight: 1.1,
+    fontFamily: "'Bodoni Moda', serif", fontWeight: 500,
+    fontSize: 'clamp(24px, 3vw, 48px)',
+    color: '#ffffff', margin: 0, lineHeight: 1.1,
     letterSpacing: '-0.01em',
   },
 
   description: {
-    fontFamily: "'Space Grotesk', sans-serif",
-    fontWeight: 300,
-    fontSize: 13,
-    lineHeight: 1.75,
-    color: 'rgba(255,255,255,0.5)',
-    margin: 0,
-    maxWidth: 360,
+    fontFamily: "'Hanken Grotesk', sans-serif", fontWeight: 300,
+    fontSize: 13, lineHeight: 1.7, color: 'rgba(255,255,255,0.5)',
+    margin: 0, maxWidth: 360,
   },
 
-  tools: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-
+  tools: { display: 'flex', flexWrap: 'wrap', gap: 6 },
   tool: {
-    fontFamily: "'JetBrains Mono', monospace",
-    fontSize: 9,
-    letterSpacing: '0.2em',
-    textTransform: 'uppercase',
-    border: '1px solid',
-    padding: '4px 10px',
+    fontFamily: "'JetBrains Mono', monospace", fontSize: 8,
+    letterSpacing: '0.2em', textTransform: 'uppercase',
+    border: '1px solid', padding: '3px 10px',
   },
 
   viewBtn: {
-    alignSelf: 'flex-start',
-    background: 'transparent',
-    border: '1px solid',
-    fontFamily: "'JetBrains Mono', monospace",
-    fontSize: 9,
-    letterSpacing: '0.3em',
-    textTransform: 'uppercase',
-    padding: '12px 28px',
-    cursor: 'pointer',
-    transition: 'background 0.2s ease, border-color 0.2s ease',
-    marginTop: 8,
+    alignSelf: 'flex-start', background: 'transparent', border: '1px solid',
+    fontFamily: "'JetBrains Mono', monospace", fontSize: 8,
+    letterSpacing: '0.3em', textTransform: 'uppercase',
+    padding: '11px 26px', cursor: 'pointer',
+    transition: 'background 0.2s ease, border-color 0.2s ease', marginTop: 6,
   },
 
   bottomBar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 0,
-    paddingTop: 16,
-    borderTop: '1px solid rgba(255,255,255,0.07)',
-    flexShrink: 0,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    gap: 0, padding: '14px 0',
+    borderTop: '1px solid rgba(255,255,255,0.07)', flexShrink: 0,
   },
 
   projectTabs: {
-    display: 'flex',
-    alignItems: 'flex-end',
-    gap: 0,
-    flex: 1,
-    justifyContent: 'center',
-    overflow: 'hidden',
+    display: 'flex', alignItems: 'flex-end', gap: 0,
+    flex: 1, justifyContent: 'center', overflow: 'hidden',
   },
 
   projectTab: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    padding: '0 20px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 4,
+    background: 'none', border: 'none', cursor: 'pointer',
+    padding: '0 18px', display: 'flex', flexDirection: 'column',
+    alignItems: 'center', gap: 4,
     transition: 'color 0.2s, border-bottom-color 0.2s',
   },
 
   projectTabNumber: {
     fontFamily: "'JetBrains Mono', monospace",
-    fontSize: 8,
-    letterSpacing: '0.2em',
-    color: 'inherit',
-    opacity: 0.5,
+    fontSize: 7, letterSpacing: '0.2em', color: 'inherit', opacity: 0.5,
   },
 
   projectTabName: {
-    fontFamily: "'Space Grotesk', sans-serif",
-    fontSize: 11,
-    fontWeight: 500,
-    letterSpacing: '0.05em',
-    textTransform: 'uppercase',
-    color: 'inherit',
-    whiteSpace: 'nowrap',
+    fontFamily: "'Hanken Grotesk', sans-serif", fontSize: 10,
+    fontWeight: 500, letterSpacing: '0.04em',
+    textTransform: 'uppercase', color: 'inherit', whiteSpace: 'nowrap',
   },
 
   arrowBtn: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: 18,
-    color: 'rgba(255,255,255,0.5)',
+    background: 'none', border: 'none', cursor: 'pointer',
+    fontSize: 16, color: 'rgba(255,255,255,0.4)',
     padding: '0 20px 8px',
     fontFamily: "'Space Grotesk', sans-serif",
-    transition: 'color 0.15s ease',
-    flexShrink: 0,
+    transition: 'color 0.15s ease', flexShrink: 0,
   },
 }

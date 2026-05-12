@@ -15,7 +15,7 @@ export default function ProjectPage({ project, onClose }) {
     return () => window.removeEventListener('keydown', handler)
   }, [onClose])
 
-  const accent = project.color ?? '#c09040'
+  const accent = project.accent ?? '#c09040'
   const hasGallery = mediaList.length > 1
 
   return (
@@ -127,13 +127,11 @@ export default function ProjectPage({ project, onClose }) {
             ))}
           </div>
 
-          {project.url ? (
+          {project.url && (
             <a href={project.url} target="_blank" rel="noopener noreferrer"
               style={{ ...s.viewBtn, color: accent, borderColor: `${accent}66` }}>
               VIEW PROJECT ↗
             </a>
-          ) : (
-            <span style={s.viewBtnDisabled}>PROJECT COMING SOON</span>
           )}
         </motion.div>
       </div>
@@ -271,11 +269,11 @@ const s = {
     overflow: 'hidden',
   },
   title: {
-    fontFamily: "'Space Grotesk', sans-serif",
-    fontWeight: 300,
-    fontSize: 'clamp(20px, 3vw, 40px)',
+    fontFamily: "'Bodoni Moda', serif",
+    fontWeight: 500,
+    fontSize: 'clamp(20px, 3vw, 42px)',
     letterSpacing: '-0.01em',
-    lineHeight: 1.15,
+    lineHeight: 1.1,
     margin: 0,
   },
   infoRight: {
@@ -288,7 +286,7 @@ const s = {
     overflow: 'auto',
   },
   description: {
-    fontFamily: "'Space Grotesk', sans-serif",
+    fontFamily: "'Hanken Grotesk', sans-serif",
     fontWeight: 300, fontSize: 13,
     color: 'rgba(255,255,255,0.45)',
     lineHeight: 1.75, margin: 0, maxWidth: 440,
@@ -308,14 +306,5 @@ const s = {
     textDecoration: 'none', textTransform: 'uppercase',
     alignSelf: 'flex-start', transition: 'opacity 0.2s',
     marginTop: 4,
-  },
-  viewBtnDisabled: {
-    display: 'inline-block',
-    fontFamily: "'JetBrains Mono', monospace",
-    fontSize: 10, letterSpacing: '0.28em',
-    color: 'rgba(255,255,255,0.12)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    padding: '10px 20px', textTransform: 'uppercase',
-    alignSelf: 'flex-start', marginTop: 4,
   },
 }

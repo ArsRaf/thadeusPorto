@@ -2,6 +2,7 @@ node_modules/
 dist/
 .claude/
 Asset/
+threejs-skills/
 *.log
 .DS_Store
 Thumbs.db

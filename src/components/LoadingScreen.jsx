@@ -53,23 +53,6 @@ export default function LoadingScreen({ onComplete }) {
       {/* Scan lines */}
       <div style={styles.scanlines} />
 
-      {/* ── TOP FILM STRIP ── */}
-      <div style={styles.filmStripTop}>
-        <div style={styles.sprocketRow}>
-          {Array.from({ length: 32 }).map((_, i) => <div key={i} style={styles.sprocket} />)}
-        </div>
-        <div style={styles.frameCounterRow}>
-          {Array.from({ length: 30 }).map((_, i) => (
-            <div key={i} style={{ ...styles.frameCell, opacity: i % 4 === 0 ? 0.7 : 0.18 }}>
-              {String(i + 1).padStart(2, '0')}
-            </div>
-          ))}
-        </div>
-        <div style={styles.sprocketRow}>
-          {Array.from({ length: 32 }).map((_, i) => <div key={i} style={styles.sprocket} />)}
-        </div>
-      </div>
-
       {/* ── CAMERA DATA ROW ── */}
       <motion.div
         style={styles.dataRow}
@@ -206,22 +189,6 @@ export default function LoadingScreen({ onComplete }) {
         </motion.p>
       </motion.div>
 
-      {/* ── BOTTOM FILM STRIP ── */}
-      <div style={styles.filmStripBottom}>
-        <div style={styles.sprocketRow}>
-          {Array.from({ length: 32 }).map((_, i) => <div key={i} style={styles.sprocket} />)}
-        </div>
-        <div style={styles.frameCounterRow}>
-          {Array.from({ length: 30 }).map((_, i) => (
-            <div key={i} style={{ ...styles.frameCell, opacity: i % 4 === 0 ? 0.7 : 0.18 }}>
-              {String(i + 1).padStart(2, '0')}
-            </div>
-          ))}
-        </div>
-        <div style={styles.sprocketRow}>
-          {Array.from({ length: 32 }).map((_, i) => <div key={i} style={styles.sprocket} />)}
-        </div>
-      </div>
     </motion.div>
   )
 }
