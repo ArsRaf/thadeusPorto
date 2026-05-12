@@ -174,10 +174,10 @@ function PlaybillSpread({ p }) {
 
       {/* Poster — actual project video */}
       <figure className="poster-marquee">
-        <video
-          src="/assets/escape-detention.mp4"
-          autoPlay muted loop playsInline
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+        <iframe
+          src="https://www.youtube.com/embed/GuuHwyIsPb8?autoplay=1&mute=1&loop=1&playlist=GuuHwyIsPb8&controls=0&playsinline=1"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
+          allow="autoplay; encrypted-media"
         />
         <span className="poster-tag" style={{ zIndex: 2 }}>
           REEL · 1,600 FRAMES · 1920×1080 · 24fps

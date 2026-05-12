@@ -185,9 +185,15 @@ export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBg
         {/* Media panel */}
         <div className="media-panel" style={s.mediaPanel}>
           {hasMedia ? (
-            firstMedia.type === 'video'
-              ? <video src={firstMedia.src} style={s.mediaSrc} autoPlay muted loop playsInline />
-              : <img src={firstMedia.src} alt={project.title} style={s.mediaSrc} />
+            firstMedia.type === 'youtube'
+              ? <iframe
+                  src={`https://www.youtube.com/embed/${firstMedia.src}?autoplay=1&mute=1&loop=1&playlist=${firstMedia.src}&controls=0&playsinline=1`}
+                  style={{ ...s.mediaSrc, border: 'none' }}
+                  allow="autoplay; encrypted-media"
+                />
+              : firstMedia.type === 'video'
+                ? <video src={firstMedia.src} style={s.mediaSrc} autoPlay muted loop playsInline />
+                : <img src={firstMedia.src} alt={project.title} style={s.mediaSrc} />
           ) : (
             <div style={s.mediaPlaceholder}>
               <span style={s.placeholderText}>NO MEDIA</span>

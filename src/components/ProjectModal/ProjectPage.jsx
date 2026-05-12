@@ -39,7 +39,14 @@ export default function ProjectPage({ project, onClose }) {
       {/* Hero media */}
       <div style={s.hero}>
         {active.src ? (
-          active.type === 'video' ? (
+          active.type === 'youtube' ? (
+            <iframe
+              key={active.src}
+              src={`https://www.youtube.com/embed/${active.src}?autoplay=1&mute=1&loop=1&playlist=${active.src}&controls=1&playsinline=1`}
+              style={{ ...s.heroMedia, border: 'none' }}
+              allow="autoplay; encrypted-media; fullscreen"
+            />
+          ) : active.type === 'video' ? (
             <video
               key={active.src}
               src={active.src}
@@ -82,7 +89,9 @@ export default function ProjectPage({ project, onClose }) {
               title={item.label}
             >
               {item.src ? (
-                item.type === 'video' ? (
+                item.type === 'youtube' ? (
+                  <img src={`https://img.youtube.com/vi/${item.src}/mqdefault.jpg`} alt={item.label ?? ''} style={s.galleryMedia} />
+                ) : item.type === 'video' ? (
                   <video src={item.src} style={s.galleryMedia} muted playsInline preload="metadata" />
                 ) : (
                   <img src={item.src} alt={item.label ?? ''} style={s.galleryMedia} />
