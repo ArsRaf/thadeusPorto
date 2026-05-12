@@ -87,7 +87,7 @@ export const projects = [
     accent: '#f5c518',
     colorBg: '#1a1600',
     media: [
-      { type: 'youtube', src: 'GuuHwyIsPb8', label: 'Final Render' },
+      { type: 'video', src: '/assets/escape-detention.mp4', label: 'Final Render' },
     ],
   },
 
