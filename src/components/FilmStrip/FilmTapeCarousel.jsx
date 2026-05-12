@@ -35,7 +35,7 @@ const cm = {
   corner: { position: 'absolute', width: 16, height: 16, pointerEvents: 'none' },
 }
 
-export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBgChange }) {
+export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBgChange, isMobile = false }) {
   const filtered = useMemo(
     () => projects.filter(p => p.category === activeCategory),
     [activeCategory]
@@ -165,10 +165,26 @@ export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBg
   const firstMedia = project.media?.[0]
   const hasMedia = firstMedia?.src
 
+  const rootStyle = isMobile
+    ? { ...s.root, padding: '0 16px', overflow: 'auto' }
+    : s.root
+
+  const contentStyle = isMobile
+    ? { ...s.content, flexDirection: 'column', gap: 16, alignItems: 'stretch', overflow: 'visible' }
+    : s.content
+
+  const mediaPanelStyle = isMobile
+    ? { ...s.mediaPanel, flex: 'none', width: '100%', height: '52vw', maxHeight: 260 }
+    : s.mediaPanel
+
+  const metaPanelStyle = isMobile
+    ? { ...s.metaPanel, gap: 10 }
+    : s.metaPanel
+
   return (
-    <div style={s.root}>
+    <div style={rootStyle}>
       {/* Category label */}
-      <div ref={categoryLabelRef} style={{ ...s.categoryLabel, color: accent }}>
+      <div ref={categoryLabelRef} style={{ ...s.categoryLabel, color: accent, fontSize: isMobile ? 22 : undefined }}>
         {catLabel.split('').map((ch, i) => (
           <span
             key={i}
@@ -180,10 +196,10 @@ export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBg
         ))}
       </div>
 
-      {/* Main content row */}
-      <div ref={contentRef} style={s.content}>
+      {/* Main content */}
+      <div ref={contentRef} style={contentStyle}>
         {/* Media panel */}
-        <div className="media-panel" style={s.mediaPanel}>
+        <div className="media-panel" style={mediaPanelStyle}>
           {hasMedia ? (
             firstMedia.type === 'youtube'
               ? <iframe
@@ -210,12 +226,12 @@ export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBg
         </div>
 
         {/* Meta panel */}
-        <div className="meta-panel" style={s.metaPanel}>
+        <div className="meta-panel" style={metaPanelStyle}>
           <div style={{ ...s.year, color: `${accent}bb` }}>{project.year}</div>
-          <h2 style={s.title}>
+          <h2 style={{ ...s.title, fontSize: isMobile ? 28 : undefined }}>
             <SplitTitle text={project.title} />
           </h2>
-          <p style={s.description}>{project.description}</p>
+          <p style={{ ...s.description, fontSize: isMobile ? 12 : undefined }}>{project.description}</p>
           <div style={s.tools}>
             {project.tools.map(t => (
               <span key={t} style={{ ...s.tool, borderColor: `${accent}33`, color: `${accent}bb` }}>
@@ -241,7 +257,7 @@ export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBg
       </div>
 
       {/* Bottom nav */}
-      <div style={s.bottomBar}>
+      <div style={{ ...s.bottomBar, marginTop: isMobile ? 12 : 0 }}>
         {filtered.length > 1 && (
           <button
             style={s.arrowBtn}
@@ -384,7 +400,7 @@ const s = {
 
   projectTabs: {
     display: 'flex', alignItems: 'flex-end', gap: 0,
-    flex: 1, justifyContent: 'center', overflow: 'hidden',
+    flex: 1, justifyContent: 'center', overflowX: 'auto', scrollbarWidth: 'none',
   },
 
   projectTab: {

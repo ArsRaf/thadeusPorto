@@ -156,6 +156,8 @@ function Portrait() {
 
 // ─── Playbill spread ──────────────────────────────────────
 function PlaybillSpread({ p }) {
+  const [iframeLoaded, setIframeLoaded] = useState(false)
+
   return (
     <section className="spread">
       {/* Title block */}
@@ -178,7 +180,20 @@ function PlaybillSpread({ p }) {
           src="https://www.youtube.com/embed/GuuHwyIsPb8?autoplay=1&mute=1&loop=1&playlist=GuuHwyIsPb8&controls=0&playsinline=1"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
           allow="autoplay; encrypted-media"
+          onLoad={() => setTimeout(() => setIframeLoaded(true), 600)}
         />
+        {/* Poster covers the black flash while iframe bootstraps */}
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
+          transition: 'opacity 0.8s ease',
+          opacity: iframeLoaded ? 0 : 1,
+        }}>
+          <img
+            src="https://img.youtube.com/vi/GuuHwyIsPb8/maxresdefault.jpg"
+            alt=""
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+        </div>
         <span className="poster-tag" style={{ zIndex: 2 }}>
           REEL · 1,600 FRAMES · 1920×1080 · 24fps
         </span>

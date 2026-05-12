@@ -3,10 +3,12 @@ import anime from 'animejs'
 import { projects } from '../../data/projects'
 import CategoryNav from './CategoryNav'
 import FilmTapeCarousel from './FilmTapeCarousel'
+import useIsMobile from '../../hooks/useIsMobile'
 
 const firstProject = projects.find(p => p.category === 'Animation')
 
 export default function FilmStripView({ onBack, onSelectProject }) {
+  const isMobile = useIsMobile()
   const [activeCategory, setActiveCategory] = useState('Animation')
   const [colorBg, setColorBg] = useState(firstProject?.colorBg ?? '#1d100f')
   const [accentColor, setAccentColor] = useState(firstProject?.accent ?? '#ffb3ad')
@@ -46,7 +48,7 @@ export default function FilmStripView({ onBack, onSelectProject }) {
   }, [])
 
   return (
-    <div style={{ ...s.root, backgroundColor: colorBg }}>
+    <div style={{ ...s.root, backgroundColor: colorBg, gridTemplateRows: isMobile ? '56px 1fr' : '72px 1fr' }}>
       {/* Screen-tear panels */}
       <div ref={topTearRef} style={s.tearTop} />
       <div ref={bottomTearRef} style={s.tearBottom} />
@@ -55,17 +57,19 @@ export default function FilmStripView({ onBack, onSelectProject }) {
       <div style={s.vignette} />
 
       {/* Header — row 1 */}
-      <header style={s.header}>
+      <header style={{ ...s.header, padding: isMobile ? '0 16px' : '0 40px' }}>
         <button onClick={onBack} style={s.backBtn} aria-label="Back to portfolio">
           <span style={s.backArrow}>←</span>
           <span style={s.backLabel}>back</span>
         </button>
 
-        <div style={s.wordmark}>
-          <span style={s.wordmarkDiamond}>◆</span>
-          <span style={s.wordmarkMain}>Thadeus Tristan</span>
-          <span style={s.wordmarkDiamond}>◆</span>
-        </div>
+        {!isMobile && (
+          <div style={s.wordmark}>
+            <span style={s.wordmarkDiamond}>◆</span>
+            <span style={s.wordmarkMain}>Thadeus Tristan</span>
+            <span style={s.wordmarkDiamond}>◆</span>
+          </div>
+        )}
 
         <div style={s.navWrapper}>
           <CategoryNav active={activeCategory} onChange={setActiveCategory} accentColor={accentColor} />
@@ -78,6 +82,7 @@ export default function FilmStripView({ onBack, onSelectProject }) {
           activeCategory={activeCategory}
           onSelectProject={onSelectProject}
           onBgChange={handleBgChange}
+          isMobile={isMobile}
         />
       </div>
     </div>
