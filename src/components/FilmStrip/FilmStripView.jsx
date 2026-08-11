@@ -7,9 +7,9 @@ import useIsMobile from '../../hooks/useIsMobile'
 
 const firstProject = projects.find(p => p.category === 'Animation')
 
-export default function FilmStripView({ onBack, onSelectProject }) {
+export default function FilmStripView({ onBack, onSelectProject, initialCategory }) {
   const isMobile = useIsMobile()
-  const [activeCategory, setActiveCategory] = useState('Animation')
+  const [activeCategory, setActiveCategory] = useState(initialCategory ?? 'Animation')
   const [colorBg, setColorBg] = useState(firstProject?.colorBg ?? '#1d100f')
   const [accentColor, setAccentColor] = useState(firstProject?.accent ?? '#ffb3ad')
 

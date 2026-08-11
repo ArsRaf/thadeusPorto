@@ -202,7 +202,7 @@ function CinemaScreen({ onClick, zooming, volume }) {
       >
         <planeGeometry args={[12, 6.75]} />
         {texture ? (
-          <meshStandardMaterial map={texture} roughness={1} toneMapped={false} />
+          <meshBasicMaterial map={texture} toneMapped={false} />
         ) : (
           <meshStandardMaterial
             color={hovered ? '#faf8f0' : '#f0ece0'}
@@ -565,13 +565,6 @@ export default function TheatreScene({ visible, onScreenClick, initialVolume = 0
           </svg>
         </button>
       </div>
-
-      {/* Warm sepia vignette */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse at center, rgba(80,45,6,0.06) 0%, rgba(120,65,10,0.24) 100%)',
-        mixBlendMode: 'multiply', pointerEvents: 'none', zIndex: 1,
-      }} />
 
       {/* Flash */}
       <motion.div

@@ -53,6 +53,7 @@ export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBg
   useEffect(() => {
     const project = filtered[currentIndex]
     if (project) onBgChange({ accent: project.accent, colorBg: project.colorBg })
+    else onBgChange({ accent: '#d4af37', colorBg: '#1d100f' })
   }, [currentIndex, filtered, onBgChange])
 
   useEffect(() => {
@@ -157,12 +158,10 @@ export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBg
   }
 
   const project = filtered[currentIndex]
-  if (!project) return null
-
   const catLabel = activeCategory.toUpperCase().split('').join(' ')
-  const accent = project.accent
+  const accent = project?.accent ?? '#d4af37'
 
-  const firstMedia = project.media?.[0]
+  const firstMedia = project?.media?.[0]
   const hasMedia = firstMedia?.src
 
   const rootStyle = isMobile
@@ -198,111 +197,122 @@ export default function FilmTapeCarousel({ activeCategory, onSelectProject, onBg
 
       {/* Main content */}
       <div ref={contentRef} style={contentStyle}>
-        {/* Media panel */}
-        <div className="media-panel" style={mediaPanelStyle}>
-          {hasMedia ? (
-            firstMedia.type === 'youtube'
-              ? <iframe
-                  src={`https://www.youtube.com/embed/${firstMedia.src}?autoplay=1&mute=1&loop=1&playlist=${firstMedia.src}&controls=0&playsinline=1`}
-                  style={{ ...s.mediaSrc, border: 'none' }}
-                  allow="autoplay; encrypted-media"
-                />
-              : firstMedia.type === 'video'
-                ? <video src={firstMedia.src} style={s.mediaSrc} autoPlay muted loop playsInline />
-                : <img src={firstMedia.src} alt={project.title} style={s.mediaSrc} />
-          ) : (
-            <div style={s.mediaPlaceholder}>
-              <span style={s.placeholderText}>NO MEDIA</span>
+        {project ? (
+          <>
+            {/* Media panel */}
+            <div className="media-panel" style={mediaPanelStyle}>
+              {hasMedia ? (
+                firstMedia.type === 'youtube'
+                  ? <iframe
+                      src={`https://www.youtube.com/embed/${firstMedia.src}?autoplay=1&mute=1&loop=1&playlist=${firstMedia.src}&controls=0&playsinline=1`}
+                      style={{ ...s.mediaSrc, border: 'none' }}
+                      allow="autoplay; encrypted-media"
+                    />
+                  : firstMedia.type === 'video'
+                    ? <video src={firstMedia.src} style={s.mediaSrc} autoPlay muted loop playsInline />
+                    : <img src={firstMedia.src} alt={project.title} style={s.mediaSrc} />
+              ) : (
+                <div style={s.mediaPlaceholder}>
+                  <span style={s.placeholderText}>NO MEDIA</span>
+                </div>
+              )}
+              <CornerMarks accent={accent} />
+
+              {/* Category · Year tag */}
+              <div style={s.mediaTag}>
+                <span style={{ ...s.mediaTagText, color: `${accent}99` }}>
+                  {project.category} · {project.year}
+                </span>
+              </div>
             </div>
-          )}
-          <CornerMarks accent={accent} />
 
-          {/* Category · Year tag */}
-          <div style={s.mediaTag}>
-            <span style={{ ...s.mediaTagText, color: `${accent}99` }}>
-              {project.category} · {project.year}
-            </span>
+            {/* Meta panel */}
+            <div className="meta-panel" style={metaPanelStyle}>
+              <div style={{ ...s.year, color: `${accent}bb` }}>{project.year}</div>
+              <h2 style={{ ...s.title, fontSize: isMobile ? 28 : undefined }}>
+                <SplitTitle text={project.title} />
+              </h2>
+              <p style={{ ...s.description, fontSize: isMobile ? 12 : undefined }}>{project.description}</p>
+              <div style={s.tools}>
+                {project.tools.map(t => (
+                  <span key={t} style={{ ...s.tool, borderColor: `${accent}33`, color: `${accent}bb` }}>
+                    {t}
+                  </span>
+                ))}
+              </div>
+              <button
+                style={{ ...s.viewBtn, borderColor: `${accent}55`, color: '#fff' }}
+                onClick={() => onSelectProject(project)}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = `${accent}22`
+                  e.currentTarget.style.borderColor = accent
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.borderColor = `${accent}55`
+                }}
+              >
+                VIEW PROJECT ↗
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="empty-panel" style={s.emptyPanel}>
+            <span style={s.emptyText}>NO PROJECTS YET</span>
+            <span style={s.emptySub}>This category is coming soon — check back later.</span>
           </div>
-        </div>
-
-        {/* Meta panel */}
-        <div className="meta-panel" style={metaPanelStyle}>
-          <div style={{ ...s.year, color: `${accent}bb` }}>{project.year}</div>
-          <h2 style={{ ...s.title, fontSize: isMobile ? 28 : undefined }}>
-            <SplitTitle text={project.title} />
-          </h2>
-          <p style={{ ...s.description, fontSize: isMobile ? 12 : undefined }}>{project.description}</p>
-          <div style={s.tools}>
-            {project.tools.map(t => (
-              <span key={t} style={{ ...s.tool, borderColor: `${accent}33`, color: `${accent}bb` }}>
-                {t}
-              </span>
-            ))}
-          </div>
-          <button
-            style={{ ...s.viewBtn, borderColor: `${accent}55`, color: '#fff' }}
-            onClick={() => onSelectProject(project)}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = `${accent}22`
-              e.currentTarget.style.borderColor = accent
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'transparent'
-              e.currentTarget.style.borderColor = `${accent}55`
-            }}
-          >
-            VIEW PROJECT ↗
-          </button>
-        </div>
+        )}
       </div>
 
       {/* Bottom nav */}
-      <div style={{ ...s.bottomBar, marginTop: isMobile ? 12 : 0 }}>
-        {filtered.length > 1 && (
-          <button
-            style={s.arrowBtn}
-            onClick={() => navigate('left')}
-            onMouseEnter={e => { e.currentTarget.style.color = accent }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)' }}
-            aria-label="Previous"
-          >←</button>
-        )}
+      {filtered.length > 0 && (
+        <div style={{ ...s.bottomBar, marginTop: isMobile ? 12 : 0 }}>
+          {filtered.length > 1 && (
+            <button
+              style={s.arrowBtn}
+              onClick={() => navigate('left')}
+              onMouseEnter={e => { e.currentTarget.style.color = accent }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)' }}
+              aria-label="Previous"
+            >←</button>
+          )}
 
-        <div style={s.projectTabs}>
-          {filtered.map((p, i) => {
-            const isActive = i === currentIndex
-            return (
-              <button
-                key={p.id}
-                onClick={() => goTo(i)}
-                style={{
-                  ...s.projectTab,
-                  color: isActive ? '#fff' : 'rgba(255,255,255,0.3)',
-                  borderBottom: `1px solid ${isActive ? accent : 'transparent'}`,
-                  paddingBottom: 8,
-                }}
-                onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = 'rgba(255,255,255,0.6)' }}
-                onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = 'rgba(255,255,255,0.3)' }}
-              >
-                <span style={s.projectTabNumber}>
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <span style={s.projectTabName}>{p.title}</span>
-              </button>
-            )
-          })}
+          <div style={s.projectTabs}>
+            {filtered.map((p, i) => {
+              const isActive = i === currentIndex
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => goTo(i)}
+                  style={{
+                    ...s.projectTab,
+                    color: isActive ? '#fff' : 'rgba(255,255,255,0.3)',
+                    borderBottom: `1px solid ${isActive ? accent : 'transparent'}`,
+                    paddingBottom: 8,
+                  }}
+                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = 'rgba(255,255,255,0.6)' }}
+                  onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = 'rgba(255,255,255,0.3)' }}
+                >
+                  <span style={s.projectTabNumber}>
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span style={s.projectTabName}>{p.title}</span>
+                </button>
+              )
+            })}
+          </div>
+
+          {filtered.length > 1 && (
+            <button
+              style={s.arrowBtn}
+              onClick={() => navigate('right')}
+              onMouseEnter={e => { e.currentTarget.style.color = accent }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)' }}
+              aria-label="Next"
+            >→</button>
+          )}
         </div>
-
-        {filtered.length > 1 && (
-          <button
-            style={s.arrowBtn}
-            onClick={() => navigate('right')}
-            onMouseEnter={e => { e.currentTarget.style.color = accent }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)' }}
-            aria-label="Next"
-          >→</button>
-        )}
-      </div>
+      )}
     </div>
   )
 }
@@ -346,6 +356,20 @@ const s = {
   placeholderText: {
     fontFamily: "'JetBrains Mono', monospace",
     fontSize: 9, letterSpacing: '0.4em', color: 'rgba(255,255,255,0.1)',
+  },
+
+  emptyPanel: {
+    flex: 1, minHeight: 280,
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+    gap: 12, border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)',
+  },
+  emptyText: {
+    fontFamily: "'JetBrains Mono', monospace",
+    fontSize: 10, letterSpacing: '0.4em', color: 'rgba(255,255,255,0.25)',
+  },
+  emptySub: {
+    fontFamily: "'Hanken Grotesk', sans-serif",
+    fontSize: 12, color: 'rgba(255,255,255,0.2)',
   },
 
   mediaTag: { position: 'absolute', bottom: 14, left: 18, pointerEvents: 'none' },

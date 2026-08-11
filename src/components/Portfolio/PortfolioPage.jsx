@@ -306,7 +306,7 @@ function Portfolio({ onWorksClick, onBack, onSelectProject }) {
           {onBack && (
             <button className="nav-link" onClick={onBack}>← Theatre</button>
           )}
-          <button className="nav-link active" onClick={onWorksClick}>Work</button>
+          <button className="nav-link active" onClick={() => onWorksClick()}>Work</button>
           <button className="nav-link" onClick={() => scrollTo(studioRef)}>Studio</button>
           <button className="nav-link" onClick={() => scrollTo(contactRef)}>Contact</button>
         </nav>
@@ -356,38 +356,38 @@ function Portfolio({ onWorksClick, onBack, onSelectProject }) {
         )}
       </AnimatePresence>
 
-      {/* Hero */}
-      <section className={cls('hero')}>
-        <div className="eyebrow">
-          <span className="num">ACT ONE</span>
-          <span className="div"></span>
-          <span className="meta">Now Playing</span>
+      {/* Now Showing section */}
+      <div className={cls('ow-section')}>
+        <div className="ow-header">
+          <div>
+            <div className="label-sm" style={{ color: 'var(--gold-deep)', marginBottom: 8 }}>CATALOGUE · VOLUME I</div>
+            <h2 className="ow-title">Now Showing.</h2>
+          </div>
+          <button className="ow-all-btn" onClick={() => onWorksClick()}>VIEW ALL WORKS ↗</button>
         </div>
-        <h1>
-          A Theatre of<br />
-          <span className="it">Selected </span>Works<span className="red">.</span>
-        </h1>
-        <div className="sub">
-          <div className="col">
-            <span className="label-sm">Direction</span>
-            <span className="val">Thaddeus — Solo designer-engineer building across procedural systems, motion, and live-action.</span>
-          </div>
-          <div className="col">
-            <span className="label-sm">Practice</span>
-            <span className="val">Procedural · Animation</span>
-            <span className="val small">3D · Camera Tracking</span>
-          </div>
-          <div className="col">
-            <span className="label-sm">Currently</span>
-            <span className="val">Final project — a self-directed anime sequence.</span>
-          </div>
-          <div className="col">
-            <span className="label-sm">Availability</span>
-            <span className="val" style={{ color: 'var(--kabuki-light)' }}>Open for commission.</span>
-            <span className="val small">hello@thaddeus.studio</span>
-          </div>
+        <div className="ow-grid">
+          {[
+            { label: 'Shorts',    category: 'Shorts',    sub: 'Coming Soon', src: '/assets/HotSauceAd.mp4' },
+            { label: 'VFX',       category: 'VFX',       sub: 'Camera Tracking · Cyberpunk Workshop', src: '/assets/camera-tracking.mp4' },
+            { label: 'Animation', category: 'Animation', sub: "Fool's Gold · Star Dunes · Moonlace", src: '/assets/fools-gold-thumb.png' },
+            { label: 'Modelling', category: 'Modelling', sub: 'Coming Soon', src: '/assets/blimp.mp4' },
+            { label: 'Art',       category: 'Art',       sub: 'Realistic Render · Blimp Model', src: '/assets/realistic-01.png' },
+          ].map(({ label, category, sub, src }) => (
+            <button key={label} className="ow-card" onClick={() => onWorksClick(category)}>
+              {src.endsWith('.mp4') ? (
+                <video src={src} muted loop autoPlay playsInline className="ow-media" />
+              ) : (
+                <img src={src} alt={label} className="ow-media" />
+              )}
+              <div className="ow-card-grad" />
+              <div className="ow-card-info">
+                <div className="ow-card-label">{label}</div>
+                <div className="ow-card-sub">{sub}</div>
+              </div>
+            </button>
+          ))}
         </div>
-      </section>
+      </div>
 
       <div className={cls()}><span className="hair"></span></div>
 
@@ -422,37 +422,6 @@ function Portfolio({ onWorksClick, onBack, onSelectProject }) {
       {/* Playbill spread */}
       <div id="work" className={cls()}>
         <PlaybillSpread p={PROJECT} />
-      </div>
-
-      {/* Other Works section */}
-      <div className={cls('ow-section')}>
-        <div className="ow-header">
-          <div>
-            <div className="label-sm" style={{ color: 'var(--gold-deep)', marginBottom: 8 }}>CATALOGUE · VOLUME I</div>
-            <h2 className="ow-title">Other Works.</h2>
-          </div>
-          <button className="ow-all-btn" onClick={onWorksClick}>VIEW ALL WORKS ↗</button>
-        </div>
-        <div className="ow-grid">
-          {[
-            { label: 'Animation', sub: "Fool's Gold · Star Dunes · Moonlace", src: '/assets/fools-gold-thumb.png' },
-            { label: 'VFX',       sub: 'Camera Tracking · Cyberpunk Workshop', src: '/assets/camera-tracking.mp4' },
-            { label: 'Art',       sub: 'Realistic Render · Blimp Model', src: '/assets/realistic-01.png' },
-          ].map(({ label, sub, src }) => (
-            <button key={label} className="ow-card" onClick={onWorksClick}>
-              {src.endsWith('.mp4') ? (
-                <video src={src} muted loop autoPlay playsInline className="ow-media" />
-              ) : (
-                <img src={src} alt={label} className="ow-media" />
-              )}
-              <div className="ow-card-grad" />
-              <div className="ow-card-info">
-                <div className="ow-card-label">{label}</div>
-                <div className="ow-card-sub">{sub}</div>
-              </div>
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Portrait / Studio */}

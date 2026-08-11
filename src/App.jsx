@@ -17,10 +17,16 @@ export default function App() {
   const [stage, setStage]                 = useState(isMobile ? 'portfolio' : 'loading')
   const [initialVolume, setInitialVolume] = useState(0.2)
   const [selectedProject, setSelectedProject] = useState(null)
+  const [worksCategory, setWorksCategory] = useState('Animation')
 
   const handleGateEnter = (vol) => {
     setInitialVolume(vol)
     setStage('theatre')
+  }
+
+  const handleWorksClick = (category) => {
+    setWorksCategory(category ?? 'Animation')
+    setStage('works')
   }
 
   return (
@@ -53,7 +59,7 @@ export default function App() {
         {stage === 'portfolio' && (
           <PortfolioPage
             key="portfolio"
-            onWorksClick={() => setStage('works')}
+            onWorksClick={handleWorksClick}
             onBack={isMobile ? null : () => setStage('theatre')}
             onSelectProject={setSelectedProject}
           />
@@ -64,6 +70,7 @@ export default function App() {
         {stage === 'works' && (
           <FilmStripView
             key="works"
+            initialCategory={worksCategory}
             onBack={() => setStage('portfolio')}
             onSelectProject={setSelectedProject}
           />

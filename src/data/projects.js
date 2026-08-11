@@ -1,4 +1,4 @@
-export const CATEGORIES = ['Animation', 'Art', 'VFX']
+export const CATEGORIES = ['Shorts', 'VFX', 'Animation', 'Modelling', 'Art']
 
 export const projects = [
   // ── Animation ────────────────────────────────────────────
