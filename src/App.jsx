@@ -6,6 +6,7 @@ import VolumeGate from './components/VolumeGate'
 import FilmStripView from './components/FilmStrip/FilmStripView'
 import PortfolioPage from './components/Portfolio/PortfolioPage'
 import ProjectPage from './components/ProjectModal/ProjectPage'
+import PlaybillPage from './components/ProjectModal/PlaybillPage'
 import GrainOverlay from './components/Theatre/GrainOverlay'
 
 const TheatreScene = lazy(() => import('./components/Theatre/TheatreScene'))
@@ -79,11 +80,18 @@ export default function App() {
 
       <AnimatePresence>
         {selectedProject && (
-          <ProjectPage
-            key="project-page"
-            project={selectedProject}
-            onClose={() => setSelectedProject(null)}
-          />
+          selectedProject.detailLayout === 'playbill' ? (
+            <PlaybillPage
+              key="project-page"
+              onClose={() => setSelectedProject(null)}
+            />
+          ) : (
+            <ProjectPage
+              key="project-page"
+              project={selectedProject}
+              onClose={() => setSelectedProject(null)}
+            />
+          )
         )}
       </AnimatePresence>
     </>

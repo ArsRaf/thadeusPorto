@@ -1,17 +1,18 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import anime from 'animejs'
 import { projects } from '../../data/projects'
 import CategoryNav from './CategoryNav'
-import FilmTapeCarousel from './FilmTapeCarousel'
+import ProjectGrid from './ProjectGrid'
 import useIsMobile from '../../hooks/useIsMobile'
-
-const firstProject = projects.find(p => p.category === 'Animation')
 
 export default function FilmStripView({ onBack, onSelectProject, initialCategory }) {
   const isMobile = useIsMobile()
   const [activeCategory, setActiveCategory] = useState(initialCategory ?? 'Animation')
-  const [colorBg, setColorBg] = useState(firstProject?.colorBg ?? '#1d100f')
-  const [accentColor, setAccentColor] = useState(firstProject?.accent ?? '#ffb3ad')
+
+  const filtered = useMemo(
+    () => projects.filter(p => p.category === activeCategory),
+    [activeCategory]
+  )
 
   const topTearRef = useRef(null)
   const bottomTearRef = useRef(null)
@@ -42,13 +43,8 @@ export default function FilmStripView({ onBack, onSelectProject, initialCategory
     })
   }, [])
 
-  const handleBgChange = useCallback(({ accent, colorBg: bg }) => {
-    setColorBg(bg)
-    setAccentColor(accent)
-  }, [])
-
   return (
-    <div style={{ ...s.root, backgroundColor: colorBg, gridTemplateRows: isMobile ? '56px 1fr' : '72px 1fr' }}>
+    <div style={{ ...s.root, gridTemplateRows: isMobile ? '56px 1fr' : '72px 1fr' }}>
       {/* Screen-tear panels */}
       <div ref={topTearRef} style={s.tearTop} />
       <div ref={bottomTearRef} style={s.tearBottom} />
@@ -72,17 +68,16 @@ export default function FilmStripView({ onBack, onSelectProject, initialCategory
         )}
 
         <div style={s.navWrapper}>
-          <CategoryNav active={activeCategory} onChange={setActiveCategory} accentColor={accentColor} />
+          <CategoryNav active={activeCategory} onChange={setActiveCategory} accentColor="#d4af37" />
         </div>
       </header>
 
-      {/* Carousel — row 2 */}
-      <div style={s.carouselArea}>
-        <FilmTapeCarousel
+      {/* Grid — row 2 */}
+      <div style={{ ...s.gridArea, padding: isMobile ? '20px 16px 40px' : '32px 48px 56px' }}>
+        <ProjectGrid
+          projects={filtered}
           activeCategory={activeCategory}
           onSelectProject={onSelectProject}
-          onBgChange={handleBgChange}
-          isMobile={isMobile}
         />
       </div>
     </div>
@@ -94,8 +89,8 @@ const s = {
     position: 'fixed', inset: 0, zIndex: 100,
     display: 'grid',
     gridTemplateRows: '72px 1fr',
+    backgroundColor: '#1d100f',
     overflow: 'hidden',
-    transition: 'background-color 0.6s ease',
   },
 
   tearTop: {
@@ -153,9 +148,8 @@ const s = {
 
   navWrapper: { display: 'flex', alignItems: 'center' },
 
-  carouselArea: {
-    flex: 1, display: 'flex', flexDirection: 'column',
-    minHeight: 0, overflow: 'hidden',
+  gridArea: {
+    minHeight: 0, overflowY: 'auto', overflowX: 'hidden',
     zIndex: 10, position: 'relative',
   },
 }
