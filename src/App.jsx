@@ -6,6 +6,7 @@ import VolumeGate from './components/VolumeGate'
 import FilmStripView from './components/FilmStrip/FilmStripView'
 import PortfolioPage from './components/Portfolio/PortfolioPage'
 import ProjectPage from './components/ProjectModal/ProjectPage'
+import PlaybillPage from './components/ProjectModal/PlaybillPage'
 import GrainOverlay from './components/Theatre/GrainOverlay'
 
 const TheatreScene = lazy(() => import('./components/Theatre/TheatreScene'))
@@ -17,10 +18,16 @@ export default function App() {
   const [stage, setStage]                 = useState(isMobile ? 'portfolio' : 'loading')
   const [initialVolume, setInitialVolume] = useState(0.2)
   const [selectedProject, setSelectedProject] = useState(null)
+  const [worksCategory, setWorksCategory] = useState('Animation')
 
   const handleGateEnter = (vol) => {
     setInitialVolume(vol)
     setStage('theatre')
+  }
+
+  const handleWorksClick = (category) => {
+    setWorksCategory(category ?? 'Animation')
+    setStage('works')
   }
 
   return (
@@ -53,7 +60,7 @@ export default function App() {
         {stage === 'portfolio' && (
           <PortfolioPage
             key="portfolio"
-            onWorksClick={() => setStage('works')}
+            onWorksClick={handleWorksClick}
             onBack={isMobile ? null : () => setStage('theatre')}
             onSelectProject={setSelectedProject}
           />
@@ -64,6 +71,7 @@ export default function App() {
         {stage === 'works' && (
           <FilmStripView
             key="works"
+            initialCategory={worksCategory}
             onBack={() => setStage('portfolio')}
             onSelectProject={setSelectedProject}
           />
@@ -72,11 +80,18 @@ export default function App() {
 
       <AnimatePresence>
         {selectedProject && (
-          <ProjectPage
-            key="project-page"
-            project={selectedProject}
-            onClose={() => setSelectedProject(null)}
-          />
+          selectedProject.detailLayout === 'playbill' ? (
+            <PlaybillPage
+              key="project-page"
+              onClose={() => setSelectedProject(null)}
+            />
+          ) : (
+            <ProjectPage
+              key="project-page"
+              project={selectedProject}
+              onClose={() => setSelectedProject(null)}
+            />
+          )
         )}
       </AnimatePresence>
     </>

@@ -489,7 +489,7 @@
 }
 .ow-all-btn:hover { opacity: 1; }
 .ow-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2px;
 }
 @media (max-width: 768px) {
   .ow-section { padding: 48px 0; }
