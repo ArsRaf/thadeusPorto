@@ -219,7 +219,7 @@ const s = {
     position: 'fixed', inset: 0,
     background: '#1d100f',
     display: 'flex', flexDirection: 'column',
-    fontFamily: "'Hanken Grotesk', sans-serif",
+    fontFamily: "'Mona Sans', sans-serif",
   },
 
   /* Topbar */
@@ -284,8 +284,8 @@ const s = {
   tab: {
     background: 'none', border: 'none', borderBottom: '2px solid transparent',
     cursor: 'pointer', padding: '12px 20px',
-    fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.25em',
-    color: 'rgba(255,255,255,0.25)', whiteSpace: 'nowrap', flexShrink: 0, textTransform: 'uppercase',
+    fontFamily: "'Mona Sans', sans-serif", fontWeight: 500, fontSize: 13, letterSpacing: '0.1em',
+    color: 'rgba(255,255,255,0.4)', whiteSpace: 'nowrap', flexShrink: 0, textTransform: 'uppercase',
   },
   tabActive: { color: '#d4af37', borderBottomColor: '#d4af37' },
 

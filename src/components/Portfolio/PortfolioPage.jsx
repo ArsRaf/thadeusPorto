@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import NowShowingReels from './NowShowingReels'
+import { projects, CATEGORIES } from '../../data/projects'
 import './portfolio.css'
 
 // ─── Ink blob ─────────────────────────────────────────────
@@ -51,6 +53,46 @@ function Portrait() {
           camera tracking — a practice rehearsed in equal parts code,
           camera, and craft.
         </p>
+        <div className="pf-cols">
+          <div>
+            <h4 className="pf-h">Skills</h4>
+            <ul className="pf-list">
+              <li>Modelling &amp; Texturing</li>
+              <li>Rigging &amp; Animation</li>
+              <li>Lighting &amp; Look-dev</li>
+              <li>VFX &amp; Compositing</li>
+              <li>Procedural &amp; Scripting</li>
+              <li>Editing &amp; Grade</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="pf-h">Experience</h4>
+            <ul className="pf-list pf-exp">
+              <li><span className="pf-yr">2026</span><span>Solo director — final-year anime sequence</span></li>
+              <li><span className="pf-yr">2025</span><span>Freelance motion &amp; 3D commissions</span></li>
+              <li><span className="pf-yr">2024</span><span>Spot animation &amp; product renders</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="pf-edu">
+          <h4 className="pf-h">Education</h4>
+          <div className="pf-track">
+            <div className="pf-node">
+              <span className="pf-yr">2022</span>
+              <span className="pf-t">Foundation — Design</span>
+            </div>
+            <div className="pf-node">
+              <span className="pf-yr">2024</span>
+              <span className="pf-t">Specialisation — 3D &amp; Motion</span>
+            </div>
+            <div className="pf-node">
+              <span className="pf-yr">2026</span>
+              <span className="pf-t">Final Project — Anime Pipeline</span>
+            </div>
+          </div>
+        </div>
+
         <div className="portrait-grid">
           <div>
             <div className="label-sm">Practice</div>
@@ -78,10 +120,6 @@ function Portrait() {
           <span className="frame-corner tr"></span>
           <span className="frame-corner bl"></span>
           <span className="frame-corner br"></span>
-          <div className="portrait-caption">
-            <span>Plate 01</span>
-            <span>The Director, in repose.</span>
-          </div>
         </div>
       </div>
     </section>
@@ -101,6 +139,32 @@ function Portfolio({ onWorksClick, onBack, onSelectProject }) {
   }, [])
 
   const cls = (extra = '') => 'reveal' + (shown ? ' in' : '') + (extra ? ' ' + extra : '')
+
+  // Reel cells come from real project data — a category appears only when it
+  // has work, and its first project supplies the cover art.
+  const BLURBS = {
+    Shorts:    'Sequences, spots & loops',
+    VFX:       'Plates, solves & composites',
+    Animation: 'Motion & character work',
+    Modelling: 'Assets, renders & turntables',
+    Art:       'Studies & stills',
+  }
+  const reelCategories = useMemo(() => (
+    CATEGORIES
+      .map((name) => {
+        const items = projects.filter((p) => p.category === name)
+        const withMedia = items.find((p) => p.media?.[0])
+        return {
+          name,
+          items,
+          blurb: BLURBS[name] ?? '',
+          cover: withMedia?.media?.[0],
+          bg: items[0]?.colorBg,
+        }
+      })
+      .filter((c) => c.items.length > 0)
+  ), [])
+
 
   const scrollTo = (ref) => {
     setMenuOpen(false)
@@ -186,32 +250,10 @@ function Portfolio({ onWorksClick, onBack, onSelectProject }) {
           </div>
           <button className="ow-all-btn" onClick={() => onWorksClick()}>VIEW ALL WORKS ↗</button>
         </div>
-        <div className="ow-grid">
-          {[
-            { label: 'Shorts',    category: 'Shorts',    sub: 'Escape Detention · Hotsauce Ad · Cyberpunk Workshop', src: '/assets/escape-detention.mp4' },
-            { label: 'VFX',       category: 'VFX',       sub: "Fool's Gold · Star Dunes · Moonlace", src: '/assets/camera-tracking.mp4' },
-            { label: 'Animation', category: 'Animation', sub: 'Coming Soon', src: null },
-            { label: 'Modelling', category: 'Modelling', sub: 'Realistic Render · More Coming Soon', src: '/assets/realistic-01.png' },
-            { label: 'Art',       category: 'Art',       sub: 'Coming Soon', src: '/assets/realistic-01.png' },
-          ].map(({ label, category, sub, src }) => (
-            <button key={label} className="ow-card" onClick={() => onWorksClick(category)}>
-              {src ? (
-                src.endsWith('.mp4') ? (
-                  <video src={src} muted loop autoPlay playsInline className="ow-media" />
-                ) : (
-                  <img src={src} alt={label} className="ow-media" />
-                )
-              ) : (
-                <div className="ow-media" style={{ background: '#141110' }} />
-              )}
-              <div className="ow-card-grad" />
-              <div className="ow-card-info">
-                <div className="ow-card-label">{label}</div>
-                <div className="ow-card-sub">{sub}</div>
-              </div>
-            </button>
-          ))}
-        </div>
+        <NowShowingReels
+          categories={reelCategories}
+          onSelect={(cat) => onWorksClick(cat.name)}
+        />
       </div>
 
       <div className={cls()}><span className="hair"></span></div>
@@ -280,7 +322,7 @@ function Portfolio({ onWorksClick, onBack, onSelectProject }) {
 export default function PortfolioPage({ onWorksClick, onBack, onSelectProject }) {
   return (
     <motion.div
-      style={{ position: 'fixed', inset: 0, zIndex: 100, overflowY: 'auto', overflowX: 'hidden', background: '#1d100f', scrollbarWidth: 'none' }}
+      style={{ position: 'fixed', inset: 0, zIndex: 100, overflowY: 'auto', overflowX: 'hidden', background: '#31080d', scrollbarWidth: 'none' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

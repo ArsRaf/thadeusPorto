@@ -1,18 +1,11 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useEffect, useRef } from 'react'
 import anime from 'animejs'
 import { projects } from '../../data/projects'
-import CategoryNav from './CategoryNav'
 import ProjectGrid from './ProjectGrid'
 import useIsMobile from '../../hooks/useIsMobile'
 
-export default function FilmStripView({ onBack, onSelectProject, initialCategory }) {
+export default function FilmStripView({ onBack, onSelectProject }) {
   const isMobile = useIsMobile()
-  const [activeCategory, setActiveCategory] = useState(initialCategory ?? 'Animation')
-
-  const filtered = useMemo(
-    () => projects.filter(p => p.category === activeCategory),
-    [activeCategory]
-  )
 
   const topTearRef = useRef(null)
   const bottomTearRef = useRef(null)
@@ -44,7 +37,7 @@ export default function FilmStripView({ onBack, onSelectProject, initialCategory
   }, [])
 
   return (
-    <div style={{ ...s.root, gridTemplateRows: isMobile ? '56px 1fr' : '72px 1fr' }}>
+    <div style={s.root}>
       {/* Screen-tear panels */}
       <div ref={topTearRef} style={s.tearTop} />
       <div ref={bottomTearRef} style={s.tearBottom} />
@@ -53,30 +46,18 @@ export default function FilmStripView({ onBack, onSelectProject, initialCategory
       <div style={s.vignette} />
 
       {/* Header — row 1 */}
-      <header style={{ ...s.header, padding: isMobile ? '0 16px' : '0 40px' }}>
-        <button onClick={onBack} style={s.backBtn} aria-label="Back to portfolio">
-          <span style={s.backArrow}>←</span>
-          <span style={s.backLabel}>back</span>
-        </button>
-
-        {!isMobile && (
-          <div style={s.wordmark}>
-            <span style={s.wordmarkDiamond}>◆</span>
-            <span style={s.wordmarkMain}>Thadeus Tristan</span>
-            <span style={s.wordmarkDiamond}>◆</span>
-          </div>
-        )}
-
-        <div style={s.navWrapper}>
-          <CategoryNav active={activeCategory} onChange={setActiveCategory} accentColor="#d4af37" />
+      <div className="bar-top">
+        <div className="lt">
+          <button className="bar-btn" onClick={onBack}>← Lobby</button>
         </div>
-      </header>
+        <div className="mk"><span className="d"></span><span>Thaddeus Tristan</span></div>
+        <div className="rt"></div>
+      </div>
 
       {/* Grid — row 2 */}
-      <div style={{ ...s.gridArea, padding: isMobile ? '20px 16px 40px' : '32px 48px 56px' }}>
+      <div style={{ ...s.gridArea, padding: 0 }}>
         <ProjectGrid
-          projects={filtered}
-          activeCategory={activeCategory}
+          projects={projects}
           onSelectProject={onSelectProject}
         />
       </div>
@@ -87,10 +68,9 @@ export default function FilmStripView({ onBack, onSelectProject, initialCategory
 const s = {
   root: {
     position: 'fixed', inset: 0, zIndex: 100,
-    display: 'grid',
-    gridTemplateRows: '72px 1fr',
-    backgroundColor: '#1d100f',
-    overflow: 'hidden',
+    backgroundColor: '#31080d',
+    overflowY: 'auto', overflowX: 'hidden',
+    scrollbarWidth: 'none',
   },
 
   tearTop: {
@@ -110,46 +90,5 @@ const s = {
     pointerEvents: 'none', zIndex: 1,
   },
 
-  header: {
-    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '0 40px',
-    borderBottom: '1px solid rgba(255,255,255,0.07)',
-    zIndex: 10, position: 'relative',
-    flexShrink: 0,
-  },
-
-  backBtn: {
-    background: 'none', border: '1px solid rgba(255,255,255,0.12)',
-    cursor: 'pointer', display: 'flex', alignItems: 'center',
-    gap: 8, padding: '7px 14px',
-    transition: 'border-color 0.2s',
-  },
-  backArrow: {
-    fontSize: 14, color: 'rgba(255,255,255,0.5)',
-    fontFamily: "'Space Grotesk', sans-serif",
-  },
-  backLabel: {
-    fontFamily: "'JetBrains Mono', monospace", fontSize: 9,
-    color: 'rgba(255,255,255,0.4)', letterSpacing: '0.3em', textTransform: 'uppercase',
-  },
-
-  wordmark: {
-    display: 'flex', alignItems: 'center', gap: 10,
-    position: 'absolute', left: '50%', transform: 'translateX(-50%)',
-  },
-  wordmarkMain: {
-    fontFamily: "'Bodoni Moda', serif", fontWeight: 500,
-    fontSize: 16, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.06em',
-  },
-  wordmarkDiamond: {
-    fontFamily: "'JetBrains Mono', monospace",
-    fontSize: 7, color: 'rgba(255,255,255,0.2)',
-  },
-
-  navWrapper: { display: 'flex', alignItems: 'center' },
-
-  gridArea: {
-    minHeight: 0, overflowY: 'auto', overflowX: 'hidden',
-    zIndex: 10, position: 'relative',
-  },
+  gridArea: { zIndex: 10, position: 'relative' },
 }

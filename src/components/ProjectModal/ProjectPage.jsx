@@ -371,7 +371,7 @@ const s = {
   },
   actHair: { background: 'rgba(255,255,255,0.12)', height: 1 },
   actLabel: {
-    fontFamily: "'Hanken Grotesk', sans-serif", fontSize: 10,
+    fontFamily: "'Mona Sans', sans-serif", fontSize: 10,
     letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
   },
 
@@ -389,14 +389,14 @@ const s = {
   },
   goalNo: { fontFamily: "'Bodoni Moda', serif", fontStyle: 'italic', fontSize: 17, lineHeight: 1.3 },
   goalText: {
-    fontFamily: "'Hanken Grotesk', sans-serif", fontWeight: 300, fontSize: 14.5,
+    fontFamily: "'Mona Sans', sans-serif", fontWeight: 300, fontSize: 14.5,
     lineHeight: 1.7, color: 'rgba(255,255,255,0.65)', maxWidth: '62ch',
   },
 
   // Prose rows (Strategy / Results)
   proseRow: { display: 'grid' },
   proseP: {
-    fontFamily: "'Hanken Grotesk', sans-serif", fontWeight: 300, fontSize: 14.5,
+    fontFamily: "'Mona Sans', sans-serif", fontWeight: 300, fontSize: 14.5,
     lineHeight: 1.8, color: 'rgba(255,255,255,0.5)', margin: '0 0 16px', maxWidth: '64ch',
   },
 

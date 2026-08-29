@@ -130,7 +130,7 @@ const styles = {
     padding: 8,
   },
   closeIcon: {
-    fontFamily: "'Outfit', sans-serif",
+    fontFamily: "'Mona Sans', sans-serif",
     fontSize: 14,
     color: '#3a4a60',
     letterSpacing: 0,
@@ -184,7 +184,7 @@ const styles = {
     textTransform: 'uppercase',
   },
   title: {
-    fontFamily: "'Outfit', sans-serif",
+    fontFamily: "'Mona Sans', sans-serif",
     fontWeight: 200,
     fontSize: 28,
     letterSpacing: '0.08em',
@@ -192,7 +192,7 @@ const styles = {
     lineHeight: 1.15,
   },
   description: {
-    fontFamily: "'Outfit', sans-serif",
+    fontFamily: "'Mona Sans', sans-serif",
     fontWeight: 300,
     fontSize: 13,
     color: '#4a6080',

@@ -28,7 +28,7 @@ export default function VolumeGate({ onEnter }) {
         {/* Speaker icon */}
         <div style={s.iconWrap}>
           <svg width="72" height="72" viewBox="0 0 24 24" fill="none"
-            stroke={volume === 0 ? 'rgba(255,255,255,0.25)' : '#d4af37'}
+            stroke={volume === 0 ? 'rgba(243,233,212,0.3)' : '#b08d4f'}
             strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"
             style={{ transition: 'stroke 0.3s' }}
           >
@@ -63,7 +63,9 @@ export default function VolumeGate({ onEnter }) {
             style={s.slider}
           />
           <div style={s.sliderTrack}>
-            <div style={{ ...s.sliderFill, width: `${volume * 100}%` }} />
+            <div style={{ ...s.sliderFill, width: `${volume * 100}%` }}>
+              <span style={s.sliderKnob} />
+            </div>
           </div>
         </div>
 
@@ -90,10 +92,10 @@ export default function VolumeGate({ onEnter }) {
         <div key={v+h} style={{
           ...s.corner,
           [v]: 24, [h]: 24,
-          borderTop:    v === 'top'    ? '1px solid rgba(212,175,55,0.2)' : 'none',
-          borderBottom: v === 'bottom' ? '1px solid rgba(212,175,55,0.2)' : 'none',
-          borderLeft:   h === 'left'   ? '1px solid rgba(212,175,55,0.2)' : 'none',
-          borderRight:  h === 'right'  ? '1px solid rgba(212,175,55,0.2)' : 'none',
+          borderTop:    v === 'top'    ? '1px solid rgba(176,141,79,0.35)' : 'none',
+          borderBottom: v === 'bottom' ? '1px solid rgba(176,141,79,0.35)' : 'none',
+          borderLeft:   h === 'left'   ? '1px solid rgba(176,141,79,0.35)' : 'none',
+          borderRight:  h === 'right'  ? '1px solid rgba(176,141,79,0.35)' : 'none',
         }} />
       ))}
     </motion.div>
@@ -103,24 +105,27 @@ export default function VolumeGate({ onEnter }) {
 const s = {
   root: {
     position: 'fixed', inset: 0, zIndex: 5000,
-    background: '#060402',
+    background: 'radial-gradient(ellipse at 50% 40%, #5c1119 0%, #31080d 68%)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   scanlines: {
     position: 'absolute', inset: 0, pointerEvents: 'none',
-    backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.18) 2px,rgba(0,0,0,0.18) 3px)',
+    backgroundImage: 'radial-gradient(rgba(243,233,212,.14) .5px, transparent .5px), radial-gradient(rgba(0,0,0,.12) .5px, transparent .5px)',
+    backgroundSize: '3px 3px, 5px 5px', backgroundPosition: '0 0, 2px 2px', opacity: 0.5,
   },
   card: {
     display: 'flex', flexDirection: 'column', alignItems: 'center',
     gap: 0, position: 'relative', zIndex: 1, textAlign: 'center',
     padding: '48px 56px',
-    border: '1px solid rgba(255,255,255,0.05)',
-    background: 'rgba(255,255,255,0.015)',
+    border: '2px solid #7d6435',
+    borderRadius: 22,
+    background: 'rgba(75,13,20,0.72)',
+    boxShadow: '0 26px 70px rgba(0,0,0,0.55)',
     minWidth: 320,
   },
   eyebrow: {
-    fontFamily: "'JetBrains Mono', monospace",
-    fontSize: 8, letterSpacing: '0.5em', color: 'rgba(255,255,255,0.2)',
+    fontFamily: "'Josefin Sans', system-ui, sans-serif", fontWeight: 600,
+    fontSize: 11, letterSpacing: '0.4em', color: '#b08d4f',
     textTransform: 'uppercase', marginBottom: 36,
   },
   iconWrap: {
@@ -130,17 +135,19 @@ const s = {
   },
   ring: {
     position: 'absolute', inset: -12,
-    borderRadius: '50%', border: '1px solid rgba(212,175,55,0.4)',
+    borderRadius: '50%', border: '1px solid rgba(176,141,79,0.45)',
     pointerEvents: 'none',
   },
   title: {
-    fontFamily: "'Bodoni Moda', serif",
-    fontSize: 26, fontWeight: 500, fontStyle: 'italic',
-    color: '#f7ddda', marginBottom: 8,
+    fontFamily: "'Limelight', 'Bodoni Moda', serif",
+    fontSize: 26, fontWeight: 400, fontStyle: 'normal',
+    letterSpacing: '0.08em', textTransform: 'uppercase',
+    color: '#F3E9D4', marginBottom: 10,
+    textShadow: '2px 2px 0 #8B0E16',
   },
   sub: {
-    fontFamily: "'Hanken Grotesk', sans-serif",
-    fontSize: 12, color: 'rgba(255,255,255,0.3)',
+    fontFamily: "'Josefin Sans', system-ui, sans-serif",
+    fontSize: 13, color: '#d8ccb4',
     lineHeight: 1.6, marginBottom: 36,
   },
 
@@ -153,28 +160,36 @@ const s = {
     opacity: 0, cursor: 'pointer', zIndex: 2, margin: 0,
   },
   sliderTrack: {
-    width: '100%', height: 1,
-    background: 'rgba(255,255,255,0.1)',
+    width: '100%', height: 3, borderRadius: 3,
+    background: 'rgba(243,233,212,0.14)',
     position: 'relative', overflow: 'visible',
   },
   sliderFill: {
-    height: '100%', background: '#d4af37',
+    height: '100%', background: '#b08d4f', borderRadius: 3,
     transition: 'width 0.05s',
     position: 'relative',
+  },
+  sliderKnob: {
+    position: 'absolute', right: 0, top: '50%',
+    width: 14, height: 14, marginRight: -7,
+    transform: 'translateY(-50%) rotate(45deg)',
+    background: '#8B0E16', border: '2px solid #b08d4f',
+    borderRadius: 3, pointerEvents: 'none',
   },
   volumeLabel: {
     fontFamily: "'JetBrains Mono', monospace",
     fontSize: 10, letterSpacing: '0.3em',
-    color: '#d4af37', marginBottom: 36,
+    color: '#b08d4f', marginBottom: 36,
   },
 
   enterBtn: {
-    background: 'none',
-    border: '1px solid rgba(212,175,55,0.5)',
+    background: 'transparent',
+    border: '2px solid #7d6435', borderRadius: 100,
     cursor: 'pointer', padding: '13px 40px',
-    fontFamily: "'JetBrains Mono', monospace",
-    fontSize: 11, letterSpacing: '0.4em',
-    color: '#d4af37', textTransform: 'uppercase',
+    fontFamily: "'Josefin Sans', system-ui, sans-serif", fontWeight: 600,
+    fontSize: 11, letterSpacing: '0.22em',
+    color: '#d8ccb4', textTransform: 'uppercase',
+    transition: 'color .25s, border-color .25s, background .25s',
     display: 'flex', alignItems: 'center', gap: 12,
     marginBottom: 20, width: '100%', justifyContent: 'center',
   },
@@ -182,9 +197,9 @@ const s = {
 
   skipBtn: {
     background: 'none', border: 'none', cursor: 'pointer',
-    fontFamily: "'JetBrains Mono', monospace",
-    fontSize: 8, letterSpacing: '0.25em',
-    color: 'rgba(255,255,255,0.15)', textTransform: 'lowercase',
+    fontFamily: "'Josefin Sans', system-ui, sans-serif",
+    fontSize: 10, letterSpacing: '0.22em',
+    color: 'rgba(243,233,212,0.4)', textTransform: 'uppercase',
   },
 
   corner: { position: 'absolute', width: 16, height: 16, pointerEvents: 'none' },

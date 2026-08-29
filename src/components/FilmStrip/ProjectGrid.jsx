@@ -1,76 +1,104 @@
+import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { CATEGORIES } from '../../data/projects'
+import '../Portfolio/portfolio.css'
 
-function GridCard({ project, onSelect }) {
+// Project card in the marquee comp's grid style: thumbnail, title/year,
+// blurb, tool pills.
+function ProjectCard({ project, onSelect }) {
   const media = project.media?.[0]
   return (
-    <button className="ow-card" onClick={() => onSelect(project)}>
-      {media?.type === 'video' ? (
-        <video src={media.src} muted loop autoPlay playsInline className="ow-media" />
-      ) : media?.type === 'image' ? (
-        <img src={media.src} alt={project.title} className="ow-media" />
-      ) : (
-        <div className="ow-media" style={{ background: project.colorBg ?? '#0a0604' }} />
-      )}
-      <div className="ow-card-grad" />
-      <div className="ow-card-info">
-        <div className="ow-card-label">{project.title}</div>
-        <div className="ow-card-sub">
-          {project.category}{project.year ? ` · ${project.year}` : ''}
-        </div>
+    <article className="pcard" onClick={() => onSelect(project)}>
+      <div className="th">
+        {media?.type === 'video' ? (
+          <video src={media.src} muted loop autoPlay playsInline className="media" />
+        ) : media?.type === 'image' ? (
+          <img src={media.src} alt={project.title} className="media" />
+        ) : (
+          <div className="pl">{project.title.charAt(0)}</div>
+        )}
+        <span className="tag">{project.category}</span>
+        <span className="rb" />
       </div>
-    </button>
+      <div className="row">
+        <h3>{project.title}</h3>
+        {project.year && <span className="yr">{project.year}</span>}
+      </div>
+      {project.description && <p>{project.description}</p>}
+      {project.tools?.length > 0 && (
+        <div className="tools">
+          {project.tools.map((t) => <span key={t}>{t}</span>)}
+        </div>
+      )}
+    </article>
   )
 }
 
-export default function ProjectGrid({ projects, activeCategory, onSelectProject }) {
-  const catLabel = activeCategory.toUpperCase().split('').join(' ')
+export default function ProjectGrid({ projects, onSelectProject }) {
+  const [openCategory, setOpenCategory] = useState(null)
+
+  // Categories that actually have work, in CATEGORIES order.
+  const categories = useMemo(() => (
+    CATEGORIES
+      .map((name) => ({ name, items: projects.filter((p) => p.category === name) }))
+      .filter((c) => c.items.length > 0)
+  ), [projects])
+
+  const open = categories.find((c) => c.name === openCategory)
+  const shown = open ? open.items : projects
+  const title = open ? open.name : 'All Works'
+
+  if (projects.length === 0) {
+    return (
+      <div className="g-head">
+        <h2>All Works</h2>
+        <div className="cnt">No projects yet — check back later.</div>
+      </div>
+    )
+  }
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={activeCategory}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div style={s.categoryLabel}>{catLabel}</div>
+    <>
+      <div className="g-head">
+        <h2>{title}</h2>
+        <div className="g-rule"><span className="dia" /></div>
+        <div className="cnt">
+          {String(shown.length).padStart(2, '0')} {shown.length === 1 ? 'Project' : 'Projects'}
+        </div>
 
-        {projects.length > 0 ? (
-          <div className="ow-grid">
-            {projects.map(p => <GridCard key={p.id} project={p} onSelect={onSelectProject} />)}
-          </div>
-        ) : (
-          <div style={s.emptyState}>
-            <span style={s.emptyText}>NO PROJECTS YET</span>
-            <span style={s.emptySub}>This category is coming soon — check back later.</span>
-          </div>
-        )}
-      </motion.div>
-    </AnimatePresence>
+        <div className="g-filters">
+          <button
+            className={'g-filter' + (open ? '' : ' on')}
+            onClick={() => setOpenCategory(null)}
+          >
+            All
+          </button>
+          {categories.map((c) => (
+            <button
+              key={c.name}
+              className={'g-filter' + (openCategory === c.name ? ' on' : '')}
+              onClick={() => setOpenCategory(c.name)}
+            >
+              {c.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={title}
+          className="g-wrap"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.28 }}
+        >
+          {shown.map((p) => (
+            <ProjectCard key={p.id} project={p} onSelect={onSelectProject} />
+          ))}
+        </motion.div>
+      </AnimatePresence>
+    </>
   )
-}
-
-const s = {
-  categoryLabel: {
-    fontFamily: "'Bodoni Moda', serif", fontWeight: 400, fontStyle: 'italic',
-    fontSize: 'clamp(24px, 3.5vw, 52px)',
-    letterSpacing: '0.05em',
-    marginBottom: 20,
-    userSelect: 'none', lineHeight: 1,
-    opacity: 0.6, color: '#fff',
-  },
-  emptyState: {
-    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-    gap: 12, padding: '64px 24px',
-    border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)',
-  },
-  emptyText: {
-    fontFamily: "'JetBrains Mono', monospace",
-    fontSize: 11, letterSpacing: '0.4em', color: 'rgba(255,255,255,0.3)',
-  },
-  emptySub: {
-    fontFamily: "'Hanken Grotesk', sans-serif",
-    fontSize: 13, color: 'rgba(255,255,255,0.2)',
-  },
 }

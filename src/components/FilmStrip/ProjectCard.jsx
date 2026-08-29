@@ -172,7 +172,7 @@ const styles = {
     background: '#06060f',
   },
   title: {
-    fontFamily: "'Outfit', sans-serif",
+    fontFamily: "'Mona Sans', sans-serif",
     fontWeight: 300,
     fontSize: 12,
     letterSpacing: '0.2em',
