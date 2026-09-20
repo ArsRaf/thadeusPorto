@@ -1,206 +1,180 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
+import './Portfolio/portfolio.css'
+import './Portfolio/gate.css'
 
-export default function VolumeGate({ onEnter }) {
-  const [volume, setVolume] = useState(0.2)
+/* Sound check, ported from the Claude Design comp "Portfolio v6.dc.html".
+   A centred card that sets the level before the curtain: staggered letters,
+   a mute toggle, a slider with tick marks, and a preview chime so the
+   viewer can actually hear what they are choosing. */
 
-  const handleEnter = () => {
-    onEnter(volume)
-  }
+const STORE = 'tt-volume'
 
-  const label = volume === 0 ? 'MUTED' : `${Math.round(volume * 100)}%`
-
+function VolIcon({ vol }) {
   return (
-    <motion.div
-      style={s.root}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.6 }}
-    >
-      {/* Scanlines */}
-      <div style={s.scanlines} />
-
-      {/* Content */}
-      <div style={s.card}>
-        <p style={s.eyebrow}>BEFORE YOU ENTER</p>
-
-        {/* Speaker icon */}
-        <div style={s.iconWrap}>
-          <svg width="72" height="72" viewBox="0 0 24 24" fill="none"
-            stroke={volume === 0 ? 'rgba(243,233,212,0.3)' : '#b08d4f'}
-            strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"
-            style={{ transition: 'stroke 0.3s' }}
-          >
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-            {volume > 0 && (
-              <motion.path d="M15.54 8.46a5 5 0 0 1 0 7.07"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }} />
-            )}
-            {volume >= 0.5 && (
-              <motion.path d="M19.07 4.93a10 10 0 0 1 0 14.14"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }} />
-            )}
-          </svg>
-
-          {/* Animated ring */}
-          {volume > 0 && (
-            <motion.div style={s.ring}
-              animate={{ scale: [1, 1.18, 1], opacity: [0.3, 0.08, 0.3] }}
-              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-            />
-          )}
-        </div>
-
-        <p style={s.title}>Set your volume</p>
-        <p style={s.sub}>Audio is part of the experience.</p>
-
-        {/* Slider */}
-        <div style={s.sliderWrap}>
-          <input
-            type="range" min="0" max="1" step="0.01" value={volume}
-            onChange={e => setVolume(parseFloat(e.target.value))}
-            style={s.slider}
-          />
-          <div style={s.sliderTrack}>
-            <div style={{ ...s.sliderFill, width: `${volume * 100}%` }}>
-              <span style={s.sliderKnob} />
-            </div>
-          </div>
-        </div>
-
-        <p style={s.volumeLabel}>{label}</p>
-
-        {/* Enter button */}
-        <motion.button
-          style={s.enterBtn}
-          onClick={handleEnter}
-          whileTap={{ scale: 0.97 }}
-        >
-          ENTER
-          <span style={s.enterArrow}>→</span>
-        </motion.button>
-
-        {/* Skip audio */}
-        <button style={s.skipBtn} onClick={() => onEnter(0)}>
-          continue without audio
-        </button>
-      </div>
-
-      {/* Corner marks */}
-      {[['top','left'],['top','right'],['bottom','left'],['bottom','right']].map(([v,h]) => (
-        <div key={v+h} style={{
-          ...s.corner,
-          [v]: 24, [h]: 24,
-          borderTop:    v === 'top'    ? '1px solid rgba(176,141,79,0.35)' : 'none',
-          borderBottom: v === 'bottom' ? '1px solid rgba(176,141,79,0.35)' : 'none',
-          borderLeft:   h === 'left'   ? '1px solid rgba(176,141,79,0.35)' : 'none',
-          borderRight:  h === 'right'  ? '1px solid rgba(176,141,79,0.35)' : 'none',
-        }} />
-      ))}
-    </motion.div>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      {vol > 0   && <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />}
+      {vol >= 50 && <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />}
+      {vol === 0 && <path d="M16 9l5 6M21 9l-5 6" />}
+    </svg>
   )
 }
 
-const s = {
-  root: {
-    position: 'fixed', inset: 0, zIndex: 5000,
-    background: 'radial-gradient(ellipse at 50% 40%, #5c1119 0%, #31080d 68%)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-  },
-  scanlines: {
-    position: 'absolute', inset: 0, pointerEvents: 'none',
-    backgroundImage: 'radial-gradient(rgba(243,233,212,.14) .5px, transparent .5px), radial-gradient(rgba(0,0,0,.12) .5px, transparent .5px)',
-    backgroundSize: '3px 3px, 5px 5px', backgroundPosition: '0 0, 2px 2px', opacity: 0.5,
-  },
-  card: {
-    display: 'flex', flexDirection: 'column', alignItems: 'center',
-    gap: 0, position: 'relative', zIndex: 1, textAlign: 'center',
-    padding: '48px 56px',
-    border: '2px solid #7d6435',
-    borderRadius: 22,
-    background: 'rgba(75,13,20,0.72)',
-    boxShadow: '0 26px 70px rgba(0,0,0,0.55)',
-    minWidth: 320,
-  },
-  eyebrow: {
-    fontFamily: "'Josefin Sans', system-ui, sans-serif", fontWeight: 600,
-    fontSize: 11, letterSpacing: '0.4em', color: '#b08d4f',
-    textTransform: 'uppercase', marginBottom: 36,
-  },
-  iconWrap: {
-    position: 'relative', width: 80, height: 80,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    marginBottom: 28,
-  },
-  ring: {
-    position: 'absolute', inset: -12,
-    borderRadius: '50%', border: '1px solid rgba(176,141,79,0.45)',
-    pointerEvents: 'none',
-  },
-  title: {
-    fontFamily: "'Limelight', 'Bodoni Moda', serif",
-    fontSize: 26, fontWeight: 400, fontStyle: 'normal',
-    letterSpacing: '0.08em', textTransform: 'uppercase',
-    color: '#F3E9D4', marginBottom: 10,
-    textShadow: '2px 2px 0 #8B0E16',
-  },
-  sub: {
-    fontFamily: "'Josefin Sans', system-ui, sans-serif",
-    fontSize: 13, color: '#d8ccb4',
-    lineHeight: 1.6, marginBottom: 36,
-  },
+export default function VolumeGate({ onEnter }) {
+  const [volume, setVol] = useState(() => {
+    const saved = Number(localStorage.getItem(STORE))
+    return Number.isFinite(saved) && localStorage.getItem(STORE) !== null ? saved : 20
+  })
+  const [leaving, setLeaving] = useState(false)
+  const lastVol = useRef(volume || 20)
+  const ac = useRef(null)
 
-  sliderWrap: {
-    position: 'relative', width: '100%', height: 32,
-    display: 'flex', alignItems: 'center', marginBottom: 8,
-  },
-  slider: {
-    position: 'absolute', inset: 0, width: '100%', height: '100%',
-    opacity: 0, cursor: 'pointer', zIndex: 2, margin: 0,
-  },
-  sliderTrack: {
-    width: '100%', height: 3, borderRadius: 3,
-    background: 'rgba(243,233,212,0.14)',
-    position: 'relative', overflow: 'visible',
-  },
-  sliderFill: {
-    height: '100%', background: '#b08d4f', borderRadius: 3,
-    transition: 'width 0.05s',
-    position: 'relative',
-  },
-  sliderKnob: {
-    position: 'absolute', right: 0, top: '50%',
-    width: 14, height: 14, marginRight: -7,
-    transform: 'translateY(-50%) rotate(45deg)',
-    background: '#8B0E16', border: '2px solid #b08d4f',
-    borderRadius: 3, pointerEvents: 'none',
-  },
-  volumeLabel: {
-    fontFamily: "'JetBrains Mono', monospace",
-    fontSize: 10, letterSpacing: '0.3em',
-    color: '#b08d4f', marginBottom: 36,
-  },
+  const store = (v) => { localStorage.setItem(STORE, String(v)); setVol(v) }
 
-  enterBtn: {
-    background: 'transparent',
-    border: '2px solid #7d6435', borderRadius: 100,
-    cursor: 'pointer', padding: '13px 40px',
-    fontFamily: "'Josefin Sans', system-ui, sans-serif", fontWeight: 600,
-    fontSize: 11, letterSpacing: '0.22em',
-    color: '#d8ccb4', textTransform: 'uppercase',
-    transition: 'color .25s, border-color .25s, background .25s',
-    display: 'flex', alignItems: 'center', gap: 12,
-    marginBottom: 20, width: '100%', justifyContent: 'center',
-  },
-  enterArrow: { fontSize: 14, letterSpacing: 0 },
+  const toggleMute = () => {
+    if (volume > 0) { lastVol.current = volume; store(0) }
+    else store(lastVol.current || 20)
+  }
 
-  skipBtn: {
-    background: 'none', border: 'none', cursor: 'pointer',
-    fontFamily: "'Josefin Sans', system-ui, sans-serif",
-    fontSize: 10, letterSpacing: '0.22em',
-    color: 'rgba(243,233,212,0.4)', textTransform: 'uppercase',
-  },
+  const nudge = (d) => store(Math.max(0, Math.min(100, volume + d)))
 
-  corner: { position: 'absolute', width: 16, height: 16, pointerEvents: 'none' },
+  /* A short arpeggio so the level means something before committing to it. */
+  const hearIt = () => {
+    const v = volume / 100
+    if (!v) return
+    try {
+      const C = ac.current || (ac.current = new (window.AudioContext || window.webkitAudioContext)())
+      const g = C.createGain()
+      g.gain.setValueAtTime(0.0001, C.currentTime)
+      g.gain.exponentialRampToValueAtTime(v * 0.4, C.currentTime + 0.03)
+      g.gain.exponentialRampToValueAtTime(0.0001, C.currentTime + 0.9)
+      g.connect(C.destination)
+      ;[440, 554.37, 659.25].forEach((f, i) => {
+        const o = C.createOscillator()
+        o.type = 'triangle'
+        o.frequency.value = f
+        o.connect(g)
+        o.start(C.currentTime + i * 0.12)
+        o.stop(C.currentTime + 0.95)
+      })
+    } catch { /* audio unavailable; the gate still works */ }
+  }
+
+  const enter = (v = volume) => {
+    if (leaving) return
+    setLeaving(true)
+    localStorage.setItem(STORE, String(v))
+    setTimeout(() => onEnter?.(v / 100), 520)
+  }
+
+  // Arrow keys adjust, M mutes, Enter commits — as the comp specifies.
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return
+      if (e.key === 'm' || e.key === 'M') return toggleMute()
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp')   { e.preventDefault(); return nudge(5) }
+      if (e.key === 'ArrowLeft'  || e.key === 'ArrowDown') { e.preventDefault(); return nudge(-5) }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enter() }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  })
+
+  const word = volume === 0 ? 'Silent'
+    : volume <= 25 ? 'Quiet'
+    : volume <= 60 ? 'Comfortable'
+    : volume <= 85 ? 'Loud' : 'Full'
+
+  const title = [...'SET', ' ', ...'YOUR']
+  const title2 = [...'VOLUME']
+  let k = 0
+
+  return (
+    <motion.div
+      className="gate"
+      animate={{ opacity: leaving ? 0 : 1 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+    >
+      <div className="gate-grain" aria-hidden="true" />
+
+      <div className="gate-card">
+        <span className="gate-kicker">Before you enter</span>
+
+        <h1 className="gate-title">
+          <span className="row cream">
+            {title.map((c, i) => c === ' ' ? <span key={i} className="sp" /> : (
+              <motion.span key={i}
+                initial={{ y: '105%', opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 + (k++) * 0.04, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+              >{c}</motion.span>
+            ))}
+          </span>
+          <span className="row accent">
+            {title2.map((c, i) => (
+              <motion.span key={i}
+                initial={{ y: '105%', opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 + (k++) * 0.04, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+              >{c}</motion.span>
+            ))}
+          </span>
+        </h1>
+
+        <motion.p className="gate-lede"
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.8 }}
+        >
+          Audio is part of the experience. Set a level you like — you can change
+          it at any time once you are inside.
+        </motion.p>
+
+        <motion.div className="gate-panel"
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.82, duration: 0.8 }}
+        >
+          <div className="gate-row">
+            <button className="gate-mute" onClick={toggleMute}
+                    aria-label={volume === 0 ? 'Unmute' : 'Mute'}>
+              <VolIcon vol={volume} />
+            </button>
+
+            <div className="gate-slider">
+              <div className="track" />
+              <div className="fill" style={{ width: `${volume}%` }} />
+              <span className="knob" style={{ left: `${volume}%` }} />
+              <input
+                type="range" min="0" max="100" step="1" value={volume}
+                onChange={(e) => store(Number(e.target.value))}
+                onMouseUp={hearIt} onTouchEnd={hearIt}
+                aria-label="Sound level"
+              />
+            </div>
+
+            <span className="gate-pct">{volume}<span className="u">%</span></span>
+          </div>
+          <span className="gate-word">{word}</span>
+        </motion.div>
+
+        <motion.button className="gate-enter" onClick={() => enter()}
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.94, duration: 0.8 }}
+        >
+          <span className="stub">Admit one</span>
+          <span className="main">Enter &rarr;</span>
+          <span className="lvl">{volume === 0 ? 'Muted' : volume + '%'}</span>
+        </motion.button>
+
+        <motion.p className="gate-hint"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          transition={{ delay: 1.06, duration: 0.8 }}
+        >
+          Headphones recommended. Arrow keys adjust, <span className="key">M</span> mutes.
+          <button className="gate-skip" onClick={() => { store(0); enter(0) }}>
+            Continue without audio
+          </button>
+        </motion.p>
+      </div>
+    </motion.div>
+  )
 }

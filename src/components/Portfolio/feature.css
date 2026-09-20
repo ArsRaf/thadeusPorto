@@ -459,3 +459,48 @@
   .ft-player-icon { width: 64px; height: 64px; font-size: 20px; }
   .ft-player-label { font-size: 9px; letter-spacing: .22em; }
 }
+
+/* A frame set to contain keeps its slot size — the whole image shows inside
+   the same box, sitting on the ground colour rather than being cropped. */
+.ft-cell > img[style*="contain"],
+.ft-fig-frame > img[style*="contain"] {
+  background: var(--oxblood-2);
+}
+
+/* ── video marker on a card ──────────────────────────────
+   Small enough to stay out of the way, but enough that a moving
+   frame is not mistaken for a still. */
+.ft-vidtag {
+  position: absolute; top: 12px; left: 12px; z-index: 3;
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 10px 5px 8px;
+  background: rgba(26, 5, 8, .78); border: 1px solid rgba(176,141,79,.4);
+  font-family: var(--mono); font-size: 8px; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--cream);
+  pointer-events: none; backdrop-filter: blur(4px);
+}
+.ft-vidtag .ico {
+  font-size: 7px; color: var(--brick-light); line-height: 1;
+}
+
+/* ── play control on a gallery video ─────────────────────
+   Sits over the poster until the viewer starts it. */
+.ft-vidplay {
+  position: absolute; inset: 0; z-index: 4;
+  display: grid; place-items: center;
+  background: rgba(26, 5, 8, .35);
+  border: 0; cursor: pointer;
+  transition: background .25s ease;
+}
+.ft-vidplay:hover { background: rgba(26, 5, 8, .18); }
+.ft-vidplay .ico {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 2px solid var(--brass); background: rgba(26,5,8,.62);
+  color: var(--cream); font-size: 15px; padding-left: 4px;
+  transition: background .25s ease, border-color .25s ease, transform .25s ease;
+}
+.ft-vidplay:hover .ico {
+  background: var(--brick); border-color: var(--brick); transform: scale(1.08);
+}
+@media (max-width: 760px) { .ft-vidplay .ico { width: 42px; height: 42px; font-size: 12px; } }

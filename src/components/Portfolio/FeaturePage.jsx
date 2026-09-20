@@ -32,33 +32,64 @@ function buildOrder() {
   return out
 }
 
-function LazyVideo({ src, poster, className, style }) {
+/* Gallery videos wait for a click. Nothing is fetched until the viewer asks
+   for it, and a page of turntables does not decode all at once. */
+function LazyVideo({ src, poster, className, style, backdrop = false }) {
   const ref = useRef(null)
+  const [started, setStarted] = useState(false)
+  const [playing, setPlaying] = useState(false)
+
+  const toggle = (e) => {
+    e?.stopPropagation?.()
+    const el = ref.current
+    if (!el) return
+    if (!started) {
+      el.preload = 'auto'
+      if (!el.getAttribute('src')) el.setAttribute('src', src)
+      setStarted(true)
+    }
+    if (el.paused) el.play?.().catch(() => {}) 
+    else el.pause?.()
+  }
+
+  // A backdrop starts itself; a gallery video waits to be clicked.
+  useEffect(() => {
+    if (!backdrop) return
+    const el = ref.current
+    if (!el) return
+    el.preload = 'auto'
+    if (!el.getAttribute('src')) el.setAttribute('src', src)
+    el.play?.().catch(() => {})
+    setStarted(true)
+  }, [backdrop, src])
+
   useEffect(() => {
     const el = ref.current
     if (!el) return
-
-    const load = () => {
-      el.preload = 'auto'
-      if (!el.getAttribute('src')) el.setAttribute('src', src)
-      el.play?.().catch(() => {})
+    const on = () => setPlaying(true)
+    const off = () => setPlaying(false)
+    el.addEventListener('play', on)
+    el.addEventListener('pause', off)
+    el.addEventListener('ended', off)
+    return () => {
+      el.removeEventListener('play', on)
+      el.removeEventListener('pause', off)
+      el.removeEventListener('ended', off)
     }
+  }, [])
 
-    // This page is a fixed scroll container, so a viewport-rooted observer
-    // can miss an element that is already on screen when the page opens.
-    // Load immediately if it is visible, and observe for the rest.
-    const r = el.getBoundingClientRect()
-    if (r.top < window.innerHeight + 200 && r.bottom > -200) load()
-
-    const io = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) load()
-      else el.pause?.()
-    }, { threshold: 0, rootMargin: '200px 0px' })
-    io.observe(el)
-    return () => io.disconnect()
-  }, [src])
-  return <video ref={ref} poster={poster} muted loop playsInline preload="none"
-                className={className} style={style} />
+  return (
+    <>
+      <video ref={ref} poster={poster} muted loop playsInline preload="none"
+             onClick={toggle} className={className}
+             style={{ ...style, cursor: 'pointer' }} />
+      {!playing && !backdrop && (
+        <button className="ft-vidplay" onClick={toggle} aria-label="Play video">
+          <span className="ico">&#9654;</span>
+        </button>
+      )}
+    </>
+  )
 }
 
 /* The result board replays the finished piece as a proper player rather
@@ -114,7 +145,12 @@ function Cell({ c, grade }) {
     <div className="ft-cell" style={{ gridColumn: c.col, gridRow: c.row }}>
       {c.isImg && <img src={c.src} alt={c.label || ''} loading="lazy" decoding="async"
                        style={{ objectPosition: c.pos, objectFit: c.fit, filter: grade }} />}
-      {c.isVid && <LazyVideo src={c.src} poster={c.poster} />}
+      {c.isVid && (
+        <>
+          <LazyVideo src={c.src} poster={c.poster} />
+          <span className="ft-vidtag"><span className="ico">&#9654;</span> Video</span>
+        </>
+      )}
       {c.isSlot && <div className="ft-cell-empty">{c.label}</div>}
 
       {c.isActStat && (
@@ -180,7 +216,12 @@ function Figure({ c, grade }) {
       <div className="ft-fig-frame">
         {c.isImg && <img src={c.src} alt={c.label || ''} loading="lazy" decoding="async"
                          style={{ objectPosition: c.pos, objectFit: c.fit, filter: grade }} />}
-        {c.isVid && <LazyVideo src={c.src} poster={c.poster} />}
+        {c.isVid && (
+          <>
+            <LazyVideo src={c.src} poster={c.poster} />
+            <span className="ft-vidtag"><span className="ico">&#9654;</span> Video</span>
+          </>
+        )}
       </div>
       <figcaption>
         <span className="ft-fig-label">{c.label}</span>
@@ -395,7 +436,7 @@ export default function FeaturePage({ project, onClose, onSelectProject }) {
 
         {/* ── board 01 · title plate ── */}
         <section className="ft-title-plate" style={{ order: 1 }}>
-          {f.hero?.type === 'video' && <LazyVideo src={f.hero.src} poster={f.hero.poster} className="ft-hero" />}
+          {f.hero?.type === 'video' && <LazyVideo src={f.hero.src} poster={f.hero.poster} className="ft-hero" backdrop />}
           {f.hero?.type === 'image' && (
             <img className="ft-hero" src={f.hero.src} alt="" fetchpriority="high" decoding="async"
                  style={{ filter: f.grade }} />
