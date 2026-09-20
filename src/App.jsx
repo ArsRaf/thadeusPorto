@@ -4,9 +4,8 @@ import useIsMobile from './hooks/useIsMobile'
 import LoadingScreen from './components/LoadingScreen'
 import VolumeGate from './components/VolumeGate'
 import FilmStripView from './components/FilmStrip/FilmStripView'
-import PortfolioPage from './components/Portfolio/PortfolioPage'
-import ProjectPage from './components/ProjectModal/ProjectPage'
-import PlaybillPage from './components/ProjectModal/PlaybillPage'
+import PortfolioV5 from './components/Portfolio/PortfolioV5'
+import FeaturePage from './components/Portfolio/FeaturePage'
 import GrainOverlay from './components/Theatre/GrainOverlay'
 
 const TheatreScene = lazy(() => import('./components/Theatre/TheatreScene'))
@@ -54,9 +53,8 @@ export default function App() {
 
       <AnimatePresence>
         {stage === 'portfolio' && (
-          <PortfolioPage
+          <PortfolioV5
             key="portfolio"
-            onWorksClick={handleWorksClick}
             onBack={isMobile ? null : () => setStage('theatre')}
             onSelectProject={setSelectedProject}
           />
@@ -75,18 +73,12 @@ export default function App() {
 
       <AnimatePresence>
         {selectedProject && (
-          selectedProject.detailLayout === 'playbill' ? (
-            <PlaybillPage
-              key="project-page"
-              onClose={() => setSelectedProject(null)}
-            />
-          ) : (
-            <ProjectPage
-              key="project-page"
-              project={selectedProject}
-              onClose={() => setSelectedProject(null)}
-            />
-          )
+          <FeaturePage
+            key={'feature-' + selectedProject.id}
+            project={selectedProject}
+            onClose={() => setSelectedProject(null)}
+            onSelectProject={setSelectedProject}
+          />
         )}
       </AnimatePresence>
     </>

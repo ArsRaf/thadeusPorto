@@ -1,37 +1,44 @@
 /* ── CSS Variables ───────────────────────────────────────── */
+/* Palette from the Claude Design "Cinema Portfolio Design Refresh" (v5):
+   near-black oxblood ground, brass rules, cream type, Anton display.
+   Token NAMES are kept so downstream rules repalette without rewriting. */
 :root {
-  /* Palette from the Claude Design "Thad Portofolio" marquee comp:
-     navy/brick ground, brass rules, cream type. Existing token NAMES are kept
-     so every downstream rule repalettes without being rewritten. */
-  --navy:          #4B0D14;
-  --navy-deep:     #31080d;
-  --navy-soft:     #5c1119;
-  --slate:         #6d1620;
+  --oxblood:       #1a0508;
+  --oxblood-2:     #2a0508;
+  --oxblood-3:     #2a080d;
   --brick:         #8B0E16;
+  --brick-mid:     #5a0b12;
   --brick-light:   #e0656b;
   --brass:         #b08d4f;
   --brass-deep:    #7d6435;
   --cream:         #F3E9D4;
   --cream-dim:     #d8ccb4;
 
-  --ink:           var(--navy-deep);
-  --ink-deep:      #240609;
-  --ink-rise:      var(--navy);
-  --ink-rise-2:    var(--navy-soft);
-  --ink-rise-3:    var(--slate);
-  --ink-rise-4:    #7d1a25;
+  --navy:          var(--oxblood-2);
+  --navy-deep:     var(--oxblood);
+  --navy-soft:     var(--oxblood-3);
+  --slate:         var(--oxblood-3);
+
+  --ink:           var(--oxblood);
+  --ink-deep:      #0a0203;
+  --ink-rise:      var(--oxblood-2);
+  --ink-rise-2:    var(--oxblood-3);
+  --ink-rise-3:    var(--oxblood-3);
+  --ink-rise-4:    #3a0a10;
   --parchment:     var(--cream);
   --parchment-dim: var(--cream-dim);
   --outline:       var(--brass);
-  --outline-dim:   rgba(201, 169, 97, 0.35);
+  --outline-dim:   rgba(176, 141, 79, 0.25);
   --kabuki:        var(--brick);
   --kabuki-light:  var(--brick-light);
   --gold:          var(--brass);
   --gold-deep:     var(--brass-deep);
 
-  --deco:    "Limelight", "Bodoni Moda", serif;
+  --display: Anton, Impact, sans-serif;
+  --slab:    "Alfa Slab One", serif;
+  --deco:    Anton, Impact, sans-serif;
   --serif:   "Bodoni Moda", "Noto Serif JP", serif;
-  --grotesk: "Josefin Sans", "Mona Sans", system-ui, sans-serif;
+  --grotesk: "Josefin Sans", system-ui, sans-serif;
   --mono:    "JetBrains Mono", ui-monospace, monospace;
   --jp:      "Noto Serif JP", serif;
 

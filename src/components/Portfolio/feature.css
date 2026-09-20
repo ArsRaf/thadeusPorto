@@ -1,0 +1,461 @@
+/* ═══ Feature page (Portfolio v6) ═════════════════════════
+   Project detail, ported from the Claude Design comp
+   "Portfolio v6.dc.html". Boards 01–05 + a stats rail whose
+   treatment rotates per project. Palette tokens: portfolio.css */
+
+.ft {
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--oxblood); color: var(--cream);
+  font-family: var(--grotesk); -webkit-font-smoothing: antialiased;
+  overflow-y: auto; overflow-x: hidden; scrollbar-width: none;
+}
+.ft::-webkit-scrollbar { display: none; }
+.ft-boards { display: flex; flex-direction: column; gap: 6px; }
+
+.ft-back {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font-family: var(--slab); font-size: 11px; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--cream-dim);
+}
+.ft-back:hover { color: var(--cream); }
+
+/* ── board 01 · title plate ─────────────────────────────── */
+.ft-title-plate {
+  position: relative; min-height: calc(100vh - 108px);
+  display: grid; align-items: end; overflow: hidden; background: var(--oxblood-3);
+}
+.ft-title-plate > .ft-hero {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: 50% 30%; display: block;
+}
+.ft-plate-scrim {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, rgba(26,5,8,.94) 0%, rgba(26,5,8,.5) 50%, rgba(26,5,8,.08) 100%),
+              linear-gradient(0deg, var(--oxblood) 0%, transparent 45%);
+}
+.ft-plate-top {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 3;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 24px; padding: 22px 48px;
+}
+.ft-tools { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.ft-tools span {
+  font-family: var(--slab); font-size: 10px; letter-spacing: .18em;
+  text-transform: uppercase; padding: 9px 16px 7px;
+  border: 1px solid var(--brass); border-radius: 999px;
+  color: var(--cream); background: rgba(26,5,8,.5); white-space: nowrap;
+}
+.ft-plate-copy {
+  position: relative; z-index: 2; padding: 22vh 48px 8vh;
+  display: flex; flex-direction: column; gap: 20px; max-width: 1100px;
+}
+.ft-kicker {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .3em;
+  text-transform: uppercase; color: var(--brass);
+}
+.ft-plate-copy h1 {
+  font-family: var(--display); font-size: clamp(64px, 10vw, 170px);
+  line-height: .86; margin: 0; text-transform: uppercase;
+  text-wrap: balance; color: var(--cream);
+}
+.ft-plate-copy > p {
+  font-size: clamp(16px, 1.35vw, 20px); line-height: 1.6;
+  margin: 0; max-width: 60ch; text-wrap: pretty;
+}
+.ft-meta {
+  display: flex; flex-wrap: wrap; gap: 12px 48px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--cream-dim); margin-top: 8px;
+}
+.ft-meta .k { color: var(--brass); margin-right: 10px; }
+
+/* ── board 02 · brief panel + first mosaic ──────────────── */
+.ft-brief {
+  display: grid; grid-template-columns: minmax(300px, 4fr) minmax(0, 8fr); gap: 6px;
+}
+.ft-brief-panel {
+  position: relative; background: var(--brick);
+  padding: 56px 44px 64px; display: flex; flex-direction: column;
+  gap: 34px; overflow: hidden;
+}
+.ft-tape {
+  position: relative; display: inline-block; align-self: flex-start;
+  padding: 8px 22px; background: url(/assets/tex/tape.png) center/100% 100% no-repeat;
+  color: var(--oxblood); font-family: var(--slab); font-size: 11px;
+  letter-spacing: .14em; text-transform: uppercase;
+  transform: rotate(-2deg); white-space: nowrap;
+}
+.ft-brief-block { position: relative; display: flex; flex-direction: column; gap: 14px; }
+.ft-brief-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .3em;
+  text-transform: uppercase; color: var(--cream); opacity: .8;
+}
+.ft-brief-block p { margin: 0; font-size: 16px; line-height: 1.6; color: var(--cream); text-wrap: pretty; }
+.ft-brief-block.approach p { font-size: 15px; line-height: 1.62; }
+
+.ft-cells-a {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(240px, 44vh); align-content: start; gap: 6px;
+}
+
+/* ── shared mosaic cell ─────────────────────────────────── */
+.ft-cell { position: relative; overflow: hidden; background: var(--oxblood-3); min-height: 200px; }
+.ft-cell > img, .ft-cell > video {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: contain; display: block;
+}
+.ft-cell-label {
+  position: absolute; left: 14px; bottom: 14px; z-index: 2;
+  font-family: var(--mono); font-size: 9px; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--cream);
+  text-shadow: 0 1px 8px rgba(0,0,0,.9);
+}
+.ft-cell-empty {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  background: var(--oxblood-3);
+  font-family: var(--mono); font-size: 9px; letter-spacing: .24em;
+  text-transform: uppercase; color: rgba(243,233,212,.22); text-align: center; padding: 20px;
+}
+
+/* ── board 03 · full-width mosaic ───────────────────────── */
+.ft-mosaic {
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-rows: minmax(220px, 27vh); grid-auto-flow: dense;
+  gap: 40px 28px; padding: 56px 48px 72px;
+}
+
+/* stat · mega-numeral stamped over a still */
+.ft-stamp-v {
+  position: absolute; left: 22px; bottom: 8px; z-index: 2;
+  font-family: var(--display); font-size: clamp(72px, 10vw, 180px);
+  line-height: .85; color: var(--cream); pointer-events: none;
+  text-shadow: 0 10px 40px rgba(0,0,0,.7);
+}
+.ft-stamp-l {
+  position: absolute; right: 22px; top: 20px; z-index: 2; max-width: 42%;
+  text-align: right; font-family: var(--mono); font-size: 10px;
+  letter-spacing: .28em; text-transform: uppercase; line-height: 1.6;
+  color: var(--cream); pointer-events: none; text-shadow: 0 1px 8px rgba(0,0,0,.9);
+}
+
+/* stat · perforated ticket stub */
+.ft-ticket {
+  position: absolute; inset: 18px; background: var(--cream); color: var(--oxblood);
+  border-top: 3px dashed var(--oxblood); border-bottom: 3px dashed var(--oxblood);
+  padding: 22px 26px; display: flex; flex-direction: column;
+  justify-content: space-between; gap: 12px; overflow: hidden;
+  box-shadow: 0 24px 40px rgba(0,0,0,.5);
+}
+.ft-ticket .grain, .ft-rail-ticket .grain {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; opacity: .35; mix-blend-mode: multiply; pointer-events: none;
+}
+.ft-ticket-head {
+  position: relative; display: flex; justify-content: space-between; gap: 12px;
+  font-family: var(--slab); font-size: 11px; letter-spacing: .3em; text-transform: uppercase;
+}
+.ft-ticket-head .serial { font-family: var(--mono); font-weight: 400; letter-spacing: .2em; color: var(--brass-deep); }
+.ft-ticket-v {
+  position: relative; font-family: var(--display);
+  font-size: clamp(56px, 7vw, 130px); line-height: .9; color: var(--brick);
+}
+.ft-ticket-foot {
+  position: relative; display: flex; justify-content: space-between; flex-wrap: wrap;
+  gap: 6px 18px; font-family: var(--mono); font-size: 10px;
+  letter-spacing: .24em; text-transform: uppercase; line-height: 1.5;
+}
+.ft-ticket-foot .dim { color: var(--brass-deep); }
+
+/* stat · clapperboard slate */
+.ft-slate { position: absolute; inset: 0; background: #120c0c; display: flex; flex-direction: column; }
+.ft-slate-bar { height: 44px; flex: none; background: repeating-linear-gradient(-55deg, var(--cream) 0 26px, var(--oxblood) 26px 52px); }
+.ft-slate-body {
+  flex: 1; padding: 24px 28px; display: grid;
+  grid-template-columns: auto minmax(0, 1fr); gap: 14px 24px; align-content: start;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .26em;
+  text-transform: uppercase; color: var(--cream-dim);
+}
+.ft-slate-body .k { color: var(--brass); padding-top: 5px; }
+.ft-slate-body .val { font-family: var(--slab); font-size: 14px; letter-spacing: .08em; color: var(--cream); }
+.ft-slate-body .sl { color: var(--brass); padding-top: 12px; max-width: 130px; line-height: 1.5; }
+.ft-slate-body .sv {
+  font-family: var(--display); font-size: clamp(30px, 3.2vw, 58px); line-height: 1;
+  color: rgba(243,233,212,.92); text-shadow: 0 0 8px rgba(243,233,212,.35);
+}
+
+/* ── stats rail ─────────────────────────────────────────── */
+.ft-rail-ticket {
+  position: relative; margin: 28px -2vw; transform: rotate(-1deg);
+  background: var(--cream); color: var(--oxblood);
+  border-top: 3px dashed var(--oxblood); border-bottom: 3px dashed var(--oxblood);
+  display: flex; flex-wrap: nowrap; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,.6);
+}
+.ft-rail-stub {
+  position: relative; flex: 1.6 1 0; min-width: 0;
+  padding: 28px 24px 28px 4vw; border-right: 3px dashed var(--oxblood);
+  display: flex; flex-direction: column; gap: 10px; justify-content: center;
+}
+.ft-rail-stub .admit { font-family: var(--slab); font-size: 11px; letter-spacing: .3em; text-transform: uppercase; }
+.ft-rail-stub .ttl {
+  font-family: var(--display); font-size: clamp(22px, 2.6vw, 48px);
+  line-height: .9; text-transform: uppercase; color: var(--brick); text-wrap: balance;
+}
+.ft-rail-stub .sub { font-family: var(--mono); font-size: 9px; letter-spacing: .26em; text-transform: uppercase; color: var(--brass-deep); }
+.ft-rail-cell {
+  position: relative; flex: 1 1 0; min-width: 0; padding: 28px 18px;
+  border-right: 3px dashed var(--oxblood);
+  display: flex; flex-direction: column; justify-content: flex-end; gap: 10px;
+}
+.ft-rail-cell .v { font-family: var(--display); font-size: clamp(26px, 3.6vw, 72px); line-height: .9; white-space: nowrap; }
+.ft-rail-cell .l { font-family: var(--mono); font-size: 8px; letter-spacing: .18em; text-transform: uppercase; line-height: 1.5; }
+
+.ft-rail-slate { position: relative; background: #120c0c; display: flex; flex-direction: column; }
+.ft-rail-slate .bar { height: 40px; background: repeating-linear-gradient(-55deg, var(--cream) 0 26px, var(--oxblood) 26px 52px); }
+.ft-rail-slate .body {
+  display: flex; flex-wrap: wrap; align-items: flex-end; gap: 36px 60px;
+  padding: 36px 48px 44px; font-family: var(--mono); font-size: 10px;
+  letter-spacing: .26em; text-transform: uppercase; color: var(--cream-dim);
+}
+.ft-rail-slate .prod { display: flex; flex-direction: column; gap: 10px; min-width: 220px; }
+.ft-rail-slate .prod .k { color: var(--brass); }
+.ft-rail-slate .prod .ttl { font-family: var(--slab); font-size: clamp(18px, 1.8vw, 28px); letter-spacing: .06em; color: var(--cream); }
+.ft-rail-slate .st { display: flex; flex-direction: column; gap: 8px; }
+.ft-rail-slate .st .v {
+  font-family: var(--display); font-size: clamp(44px, 5vw, 90px); line-height: .9;
+  color: rgba(243,233,212,.92); text-shadow: 0 0 10px rgba(243,233,212,.35);
+}
+.ft-rail-slate .st .l { font-size: 9px; color: var(--brass); max-width: 160px; line-height: 1.5; }
+
+.ft-rail-stamp { position: relative; height: min(50vh, 520px); overflow: hidden; background: var(--oxblood-3); }
+.ft-rail-stamp > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; display: block; }
+.ft-rail-stamp .nums {
+  position: absolute; inset: 0; display: flex; align-items: flex-end; flex-wrap: wrap;
+  gap: 20px 5vw; padding: 0 48px 6vh; pointer-events: none;
+}
+.ft-rail-stamp .st { display: flex; flex-direction: column; gap: 8px; }
+.ft-rail-stamp .st .v {
+  font-family: var(--display); font-size: clamp(64px, 9vw, 170px); line-height: .85;
+  color: var(--cream); text-shadow: 0 10px 40px rgba(0,0,0,.7);
+}
+.ft-rail-stamp .st .l {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .28em; text-transform: uppercase;
+  color: var(--cream); max-width: 180px; line-height: 1.5; text-shadow: 0 1px 8px rgba(0,0,0,.9);
+}
+
+/* ── board 04 · results as a billing block ──────────────── */
+.ft-results {
+  position: relative; padding: 100px 48px 110px;
+  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 40px 60px; align-items: start; overflow: hidden;
+}
+.ft-results::before {
+  content: ""; position: absolute; inset: 0;
+  background: url(/assets/tex/scratches.png) center/cover;
+  opacity: .12; mix-blend-mode: screen; pointer-events: none;
+}
+.ft-results h2 {
+  position: relative; font-family: var(--display);
+  font-size: clamp(64px, 9vw, 150px); line-height: .86; margin: 0;
+  text-transform: uppercase; color: var(--cream);
+}
+.ft-results h2 .accent { color: var(--brick-light); padding-left: .3em; }
+.ft-results-body { position: relative; display: flex; flex-direction: column; gap: 16px; padding-top: 12px; }
+.ft-results-body p {
+  margin: 0; font-size: clamp(16px, 1.3vw, 19px); line-height: 1.6;
+  color: var(--cream); max-width: 62ch; text-wrap: pretty;
+}
+.ft-delivered {
+  position: relative; grid-column: 1/-1;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px 48px; padding-top: 30px; border-top: 1px solid rgba(176,141,79,.3);
+}
+.ft-delivered .line { font-family: var(--slab); font-size: 15px; letter-spacing: .04em; color: var(--cream); }
+.ft-delivered .spec { font-family: var(--mono); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--brass); line-height: 1.6; }
+.ft-credits {
+  position: relative; grid-column: 1/-1; display: flex; flex-direction: column; gap: 8px;
+  padding-top: 30px; border-top: 1px solid rgba(176,141,79,.3);
+  font-family: var(--mono); font-size: 11px; line-height: 1.7; color: var(--cream-dim);
+}
+.ft-credits .hd { font-size: 9px; letter-spacing: .3em; text-transform: uppercase; color: var(--brass); }
+
+/* ── board 05 · next feature ────────────────────────────── */
+.ft-next {
+  position: relative; height: min(56vh, 520px); overflow: hidden;
+  cursor: pointer; background: var(--oxblood-3); border: 0; padding: 0;
+  width: 100%; display: block; text-align: left; color: inherit; font: inherit;
+}
+.ft-next > img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: 50% 35%; display: block; transform: scale(1.04);
+  transition: transform .8s cubic-bezier(.2,.7,.3,1);
+}
+.ft-next:hover > img { transform: scale(1.09); }
+.ft-next-scrim {
+  position: absolute; inset: 0;
+  background: linear-gradient(0deg, var(--oxblood) 0%, rgba(26,5,8,.55) 55%, rgba(26,5,8,.2) 100%);
+}
+.ft-next-copy {
+  position: absolute; left: 48px; right: 48px; bottom: 8vh;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.ft-next-copy .ttl {
+  font-family: var(--display); font-size: clamp(48px, 7vw, 120px);
+  line-height: .88; text-transform: uppercase; color: var(--cream);
+}
+
+.ft-leak { position: absolute; mix-blend-mode: screen; pointer-events: none; }
+
+/* ── entrance ───────────────────────────────────────────── */
+.ft-in { animation: ft-in .8s cubic-bezier(.2,.7,.3,1) both; }
+@keyframes ft-in { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+.ft-stag { animation: ft-stag .9s cubic-bezier(.2,.7,.3,1) both; }
+@keyframes ft-stag { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 1000px) {
+  .ft-brief { grid-template-columns: 1fr; }
+  .ft-results { grid-template-columns: 1fr; padding: 72px 24px 80px; }
+  .ft-mosaic { grid-auto-rows: minmax(160px, 22vh); }
+}
+@media (max-width: 760px) {
+  .ft-plate-top, .ft-plate-copy { padding-left: 24px; padding-right: 24px; }
+  .ft-plate-copy { padding-top: 18vh; }
+  .ft-brief-panel { padding: 40px 24px 48px; }
+  .ft-cells-a { grid-template-columns: 1fr; }
+  .ft-mosaic { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .ft-next-copy { left: 24px; right: 24px; }
+  .ft-rail-ticket { flex-wrap: wrap; margin: 20px 0; }
+  .ft-rail-stamp .nums { padding: 0 24px 5vh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ft-in, .ft-stag { animation: none; }
+  .ft-next > img, .ft-next:hover > img { transition: none; transform: scale(1.04); }
+}
+
+/* ── act dividers ────────────────────────────────────────
+   Partitions the pipeline into labelled chapters, using the
+   comp's clapperboard sprocket strip + taped scene label. */
+.ft-act-head { position: relative; }
+.ft-act-sprocket {
+  height: 26px;
+  background: repeating-linear-gradient(-55deg, var(--cream) 0 26px, var(--oxblood) 26px 52px);
+}
+.ft-act-bar {
+  position: relative; background: #120c0c;
+  padding: 30px 48px 34px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 14px;
+  border-bottom: 1px solid rgba(176,141,79,.25);
+}
+.ft-act-bar h3 {
+  font-family: var(--display); font-size: clamp(34px, 5vw, 78px);
+  line-height: .9; margin: 0; text-transform: uppercase;
+  color: var(--cream); text-wrap: balance;
+}
+.ft-act-bar p {
+  margin: 0; max-width: 62ch;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+  line-height: 1.7; text-transform: uppercase; color: var(--brass);
+}
+@media (max-width: 760px) {
+  .ft-act-bar { padding: 22px 24px 26px; }
+  .ft-act-sprocket { height: 18px; }
+}
+
+/* ── stat dealt into an act ──────────────────────────────
+   Keeps the numbers inside the story instead of pooling them
+   in one block. Reads as a stamped panel, not a photo cell. */
+.ft-actstat {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; justify-content: center;
+  gap: 10px; padding: 24px 26px;
+  background:
+    linear-gradient(135deg, rgba(139,14,22,.35), transparent 60%),
+    var(--oxblood-2);
+  border: 1px solid rgba(176,141,79,.28);
+}
+.ft-actstat .v {
+  font-family: var(--display); font-size: clamp(44px, 5.5vw, 96px);
+  line-height: .85; color: var(--cream);
+  text-shadow: 0 8px 30px rgba(0,0,0,.6);
+}
+.ft-actstat .l {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .26em;
+  text-transform: uppercase; color: var(--brass); line-height: 1.6; max-width: 22ch;
+}
+
+/* frames declared fit:contain sit on the ground colour rather than
+   being cropped — tall turnarounds and wide banners keep their shape */
+.ft-cell > img[style*="contain"] { background: var(--oxblood-2); }
+
+/* ── captioned frame ─────────────────────────────────────
+   Image sits in its own frame with the caption beneath, so a
+   viewer gets context per frame rather than a wall of pictures. */
+.ft-fig { margin: 0; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.ft-fig-frame {
+  position: relative; flex: 1; min-height: 0;
+  overflow: hidden; background: var(--oxblood-3);
+  border: 1px solid rgba(176,141,79,.16);
+}
+.ft-fig-frame > img, .ft-fig-frame > video {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  object-fit: contain;
+}
+.ft-fig figcaption { display: flex; flex-direction: column; gap: 7px; flex: none; }
+.ft-fig-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .26em;
+  text-transform: uppercase; color: var(--brass);
+}
+.ft-fig-note {
+  font-family: var(--grotesk); font-size: 14px; line-height: 1.6;
+  color: var(--cream-dim); max-width: 54ch; text-wrap: pretty;
+}
+
+/* an uncaptioned cell keeps its own frame edge so the rhythm matches */
+.ft-mosaic > .ft-cell { border: 1px solid rgba(176,141,79,.16); }
+
+@media (max-width: 1000px) { .ft-mosaic { gap: 32px 20px; padding: 40px 24px 56px; } }
+@media (max-width: 760px)  {
+  .ft-mosaic { gap: 28px 16px; padding: 32px 20px 44px; grid-auto-rows: minmax(200px, 26vh); }
+  .ft-fig-note { font-size: 13px; }
+}
+
+/* ── result player ───────────────────────────────────────
+   The finished piece, replayed with controls so a viewer can
+   start, pause and scrub rather than watching a muted loop. */
+.ft-result-video { position: relative; grid-column: 1/-1; margin-bottom: 48px; }
+.ft-player {
+  position: relative; width: 100%; background: #000;
+  border: 1px solid rgba(176,141,79,.22);
+  box-shadow: 0 30px 70px rgba(0,0,0,.55);
+}
+.ft-player video {
+  display: block; width: 100%; height: auto; max-height: 78vh;
+  object-fit: contain; background: #000; cursor: pointer;
+}
+.ft-player-start {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 18px; cursor: pointer; border: 0;
+  background: linear-gradient(0deg, rgba(26,5,8,.55), rgba(26,5,8,.2));
+  transition: background .3s ease;
+}
+.ft-player-start:hover { background: linear-gradient(0deg, rgba(26,5,8,.4), rgba(26,5,8,.1)); }
+.ft-player-icon {
+  width: 84px; height: 84px; border-radius: 50%;
+  border: 2px solid var(--brass); color: var(--cream);
+  display: grid; place-items: center; font-size: 26px; padding-left: 6px;
+  background: rgba(26,5,8,.55);
+  transition: background .3s ease, border-color .3s ease, transform .3s ease;
+}
+.ft-player-start:hover .ft-player-icon {
+  background: var(--brick); border-color: var(--brick); transform: scale(1.06);
+}
+.ft-player-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .3em;
+  text-transform: uppercase; color: var(--cream);
+  text-shadow: 0 2px 12px rgba(0,0,0,.8);
+}
+@media (max-width: 760px) {
+  .ft-result-video { margin-bottom: 32px; }
+  .ft-player-icon { width: 64px; height: 64px; font-size: 20px; }
+  .ft-player-label { font-size: 9px; letter-spacing: .22em; }
+}
